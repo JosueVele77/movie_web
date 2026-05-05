@@ -47,15 +47,15 @@ const categoriesClose = document.getElementById('categories-close');
 // --- Authentication ---
 function checkLoginStatus() {
     if (state.isLoggedIn) {
-        loginLink.classList.add('d-none');
-        userMenu.classList.remove('d-none');
-        myContentLink.classList.remove('d-none');
-        favoritesLink.classList.remove('d-none');
+        if(loginLink) loginLink.classList.add('d-none');
+        if(userMenu) userMenu.classList.remove('d-none');
+        if(myContentLink) myContentLink.classList.remove('d-none');
+        if(favoritesLink) favoritesLink.classList.remove('d-none');
     } else {
-        loginLink.classList.remove('d-none');
-        userMenu.classList.add('d-none');
-        myContentLink.classList.add('d-none');
-        favoritesLink.classList.add('d-none');
+        if(loginLink) loginLink.classList.remove('d-none');
+        if(userMenu) userMenu.classList.add('d-none');
+        if(myContentLink) myContentLink.classList.add('d-none');
+        if(favoritesLink) favoritesLink.classList.add('d-none');
     }
 }
 
@@ -68,13 +68,13 @@ if (logoutButton) {
     });
 }
 
-if (window.location.pathname.includes('login.html')) {
+if (window.location.pathname.includes('login.jsp')) {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             localStorage.setItem('isLoggedIn', 'true');
-            window.location.href = '../index.html';
+            window.location.href = '../index.jsp';
         });
     }
 }
@@ -83,7 +83,7 @@ if (window.location.pathname.includes('login.html')) {
 function openMovieDetail(movieId) {
     // Adjust path for category pages
     const path = window.location.pathname.includes('/pages/') ? '' : 'pages/';
-    window.location.href = `${path}detalle.html?id=${movieId}`;
+    window.location.href = `${path}detalle.jsp?id=${movieId}`;
 }
 
 function updateCatalogTabs() {
@@ -131,10 +131,12 @@ function setCarouselVisibility(isVisible) {
 
 function showSearchResults(searchTerm) {
     const encodedSearchTerm = encodeURIComponent(searchTerm);
-    catalogTabsContainer.classList.add('d-none');
-    Object.values(catalogPanels).forEach(panel => panel.classList.add('d-none'));
-    searchResultsContainer.classList.remove('d-none');
-    catalogTitle.textContent = `Resultados para: "${searchTerm}"`;
+    if (catalogTabsContainer) catalogTabsContainer.classList.add('d-none');
+    Object.values(catalogPanels).forEach(panel => {
+        if(panel) panel.classList.add('d-none');
+    });
+    if (searchResultsContainer) searchResultsContainer.classList.remove('d-none');
+    if (catalogTitle) catalogTitle.textContent = `Resultados para: "${searchTerm}"`;
     setCarouselVisibility(false);
     saveSearchState(true, searchTerm);
     return fetchAndRenderMovies(`/search/movie?query=${encodedSearchTerm}`, 'search-results');
@@ -144,9 +146,9 @@ function resetSearchView() {
     if (searchInput) {
         searchInput.value = '';
     }
-    catalogTabsContainer.classList.remove('d-none');
-    searchResultsContainer.classList.add('d-none');
-    catalogTitle.textContent = 'ESTRENOS ACTUALES';
+    if (catalogTabsContainer) catalogTabsContainer.classList.remove('d-none');
+    if (searchResultsContainer) searchResultsContainer.classList.add('d-none');
+    if (catalogTitle) catalogTitle.textContent = 'ESTRENOS ACTUALES';
     setCarouselVisibility(true);
     saveSearchState(false, '');
     updateCatalogTabs();
@@ -170,7 +172,7 @@ if (backButtons.length > 0) {
                 window.history.back();
                 return;
             }
-            const fallback = button.getAttribute('data-fallback') || 'index.html';
+            const fallback = button.getAttribute('data-fallback') || 'index.jsp';
             window.location.href = fallback;
         });
     });
@@ -239,20 +241,19 @@ function populateCategoriesDropdown(genres) {
         guerra: { icon: 'bi-shield-fill', image: 'https://image.tmdb.org/t/p/original/mf4V7H4FfZ2lIY9pJMRr4L5BfIY.jpg' },
         western: { icon: 'bi-collection-play-fill', image: 'https://image.tmdb.org/t/p/original/6iUNJZymJBMXXriQyFZfLAKnjO6.jpg' }
     };
-
+    const defaultImage = 'https://image.tmdb.org/t/p/original/8eihUxjQsJ7WvGySkVMC0EwbPAD.jpg';
     const normalizeKey = (value) => value
         .toLowerCase()
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
         .replace(/\s+/g, ' ')
         .trim();
-
     genres.forEach(genre => {
         const key = normalizeKey(genre.name);
-        const entry = config[key] || { icon: 'bi-film', image: 'https://image.tmdb.org/t/p/original/8eihUxjQsJ7WvGySkVMC0EwbPAD.jpg' };
+        const entry = config[key] || { icon: 'bi-film', image: defaultImage };
         const card = document.createElement('a');
         card.className = 'category-card';
-        card.href = `pages/category.html?id=${genre.id}&name=${encodeURIComponent(genre.name)}`;
+        card.href = `pages/category.jsp?id=${genre.id}&name=${encodeURIComponent(genre.name)}`;
         card.style.setProperty('--category-card-image', `url('${entry.image}')`);
         card.innerHTML = `
             <span class="category-card-icon"><i class="bi ${entry.icon}"></i></span>
@@ -313,6 +314,53 @@ async function fetchAndRenderCarousel() {
 
     } catch (error) {
         console.error('Error fetching carousel movies:', error);
+    }
+}
+
+async function fetchAndRenderLoginCarousel() {
+    const carouselInner = document.getElementById('login-carousel-inner');
+    const loginCarousel = document.getElementById('loginCarousel');
+    const carouselIndicators = loginCarousel ? loginCarousel.querySelector('.carousel-indicators') : null;
+
+    if (!carouselInner || !carouselIndicators) return;
+
+    try {
+        const response = await fetch(buildApiUrl('/trending/movie/week'));
+        const data = await response.json();
+        const movies = data.results.filter(movie => movie.backdrop_path).slice(0, 5); // Solo 5 para el login
+
+        if (movies.length === 0) return;
+
+        carouselInner.innerHTML = '';
+        carouselIndicators.innerHTML = '';
+
+        movies.forEach((movie, index) => {
+            const isActive = index === 0 ? 'active' : '';
+
+            const indicator = document.createElement('button');
+            indicator.type = 'button';
+            indicator.dataset.bsTarget = '#loginCarousel';
+            indicator.dataset.bsSlideTo = index;
+            if (index === 0) {
+                indicator.className = 'active';
+                indicator.ariaCurrent = 'true';
+            }
+            indicator.ariaLabel = `Slide ${index + 1}`;
+            carouselIndicators.appendChild(indicator);
+
+            const carouselItem = document.createElement('div');
+            carouselItem.className = `carousel-item h-100 ${isActive}`;
+            carouselItem.innerHTML = `
+                <img src="https://image.tmdb.org/t/p/original${movie.backdrop_path}" class="d-block w-100 h-100 object-fit-cover" alt="${movie.title}" style="filter: brightness(0.6);" onerror="this.onerror=null;this.src='${FALLBACK_BACKDROP_URL}'">
+                <div class="carousel-caption d-none d-md-block bottom-0 pb-4 text-start px-3">
+                    <h5 class="fw-bold text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">${movie.title}</h5>
+                </div>
+            `;
+            carouselInner.appendChild(carouselItem);
+        });
+
+    } catch (error) {
+        console.error('Error fetching login carousel movies:', error);
     }
 }
 
@@ -467,6 +515,23 @@ function purchaseMovie(movieData) {
     }
 }
 
+// --- Tema claro/oscuro global ---
+if (themeToggleBtn) {
+    const icon = themeToggleBtn.querySelector('i');
+    // Cargar preferencia guardada
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-bs-theme', savedTheme);
+        icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    }
+    themeToggleBtn.addEventListener('click', function() {
+        const current = htmlElement.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+        htmlElement.setAttribute('data-bs-theme', current);
+        localStorage.setItem('theme', current);
+        icon.className = current === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    });
+}
+
 // --- Initializations ---
 document.addEventListener('DOMContentLoaded', () => {
     checkLoginStatus();
@@ -486,5 +551,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAndRenderMovies('/movie/now_playing', 'recent-catalog', HOME_CATALOG_LIMIT, HOME_CATALOG_PAGES);
         fetchAndRenderMovies('/movie/popular', 'popular-catalog', HOME_CATALOG_LIMIT, HOME_CATALOG_PAGES);
         fetchAndRenderMovies('/movie/top_rated', 'top-catalog', HOME_CATALOG_LIMIT, HOME_CATALOG_PAGES);
+    }
+
+    if (document.getElementById('login-carousel-inner')) {
+        fetchAndRenderLoginCarousel();
     }
 });

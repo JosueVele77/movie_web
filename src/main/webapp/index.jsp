@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark"> <head>
     <meta charset="UTF-8">
@@ -14,7 +15,7 @@
 <div class="planet"></div>
 <nav class="navbar navbar-expand-lg custom-navbar py-3">
     <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="index.jsp">
             <img src="img/logo-cinestore.svg" alt="CineStore" class="brand-logo">
         </a>
 
@@ -42,11 +43,11 @@
                         Categorías
                     </button>
                 </li>
-                <li class="nav-item d-none" id="my-content-link"><a class="nav-link" href="pages/my_content.html">Mi Contenido</a></li>
-                <li class="nav-item d-none" id="favorites-link"><a class="nav-link" href="pages/favorites.html">Favoritos</a></li>
+                <li class="nav-item d-none" id="my-content-link"><a class="nav-link" href="pages/my_content.jsp">Mi Contenido</a></li>
+                <li class="nav-item d-none" id="favorites-link"><a class="nav-link" href="pages/favorites.jsp">Favoritos</a></li>
 
                 <li class="nav-item" id="login-link">
-                    <a href="pages/login.html" class="nav-link" aria-label="Iniciar sesión">
+                    <a href="pages/login.jsp" class="nav-link" aria-label="Iniciar sesión">
                         <i class="bi bi-person-circle login-icon" role="button"></i>
                     </a>
                 </li>
@@ -112,10 +113,10 @@
     <section id="catalog-section" class="view-section">
         <h3 id="catalog-title" class="section-title fw-bold mb-4" style="color: var(--accent-color);">ESTRENOS ACTUALES</h3>
 
-        <div id="catalog-tabs-container" class="catalog-tabs mb-4" role="tablist">
-            <button class="catalog-tab active" type="button" data-tab="recent" role="tab">🎬 Cartelera</button>
-            <button class="catalog-tab" type="button" data-tab="popular" role="tab">🔥 Populares</button>
-            <button class="catalog-tab" type="button" data-tab="top" role="tab">⭐ Mejor Valoradas</button>
+        <div id="catalog-tabs-container" class="catalog-tabs mb-4 d-flex justify-content-center gap-4" role="tablist">
+            <button class="catalog-tab circle-tab active" type="button" data-tab="recent" role="tab">🎬 Cartelera</button>
+            <button class="catalog-tab circle-tab" type="button" data-tab="popular" role="tab">🔥 Populares</button>
+            <button class="catalog-tab circle-tab" type="button" data-tab="top" role="tab">⭐ Mejor Valoradas</button>
         </div>
 
         <section id="panel-recent" class="catalog-panel">

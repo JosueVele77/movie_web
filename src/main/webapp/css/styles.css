@@ -1,3 +1,11 @@
+/* Efecto de escala en flechas del carrusel */
+.carousel-control-prev, .carousel-control-next {
+    transition: transform 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.carousel-control-prev:hover, .carousel-control-next:hover {
+    transform: scale(1.25);
+    z-index: 2;
+}
 /* Variables para mantener los colores consistentes y soportar Bootstrap 5 theming */
 :root {
     --bg-color: #141414; /* Fondo principal oscuro */
@@ -10,13 +18,25 @@
 }
 
 /* Variables para el modo claro */
+/* Modo claro mejorado */
 [data-bs-theme="light"] {
-    --bg-color: #f4f5f7; /* Fondo principal claro */
+    --bg-color: #e7e9ef; /* Fondo principal claro, más notorio */
     --card-bg: #ffffff; /* Fondo de tarjetas blanco */
-    --text-color: #212529; /* Color de texto oscuro para contraste */
+    --text-color: #212529; /* Texto negro en modo claro */
     --nav-bg: #ffffff; /* Fondo de navegación blanco */
     --login-icon-color: #6c757d; /* Gris Bootstrap en modo claro */
 }
+
+/* Planeta diferente en modo claro */
+[data-bs-theme="light"] .planet {
+    background: radial-gradient(circle at 30% 30%, #60d2db, #7c3aed, #1d4ed8);
+    box-shadow: inset -20px -20px 40px rgba(0, 0, 0, 0.1),
+    0 0 50px rgba(124, 58, 237, 0.15);
+    opacity: 0.8;
+}
+
+/* Forzar texto blanco en modo claro */
+/* El color de texto en modo claro se controla solo con la variable --text-color */
 
 body {
     margin: 0;
@@ -278,7 +298,8 @@ body {
 
 /* Fix Carousel text colors */
 .carousel-caption h1,
-.carousel-caption p {
+.carousel-caption p,
+.carousel-caption h5 {
     color: #ffffff !important;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
@@ -363,6 +384,7 @@ body {
 
 [data-bs-theme="light"] .custom-modal .form-control {
     border-bottom: 2px solid #f0f0f0;
+    color: #212529 !important;
 }
 
 /* Iconos dentro de los inputs */
@@ -439,13 +461,13 @@ body {
 }
 
 /* Fix register link text colors */
-.custom-modal a[href="registro.html"],
-.custom-modal a[href="login.html"]{
+.custom-modal a[href="registro.jsp"],
+.custom-modal a[href="login.jsp"]{
     color: var(--text-color) !important;
 }
 
-[data-bs-theme="light"] .custom-modal a[href="registro.html"],
-[data-bs-theme="light"] .custom-modal a[href="login.html"]{
+[data-bs-theme="light"] .custom-modal a[href="registro.jsp"],
+[data-bs-theme="light"] .custom-modal a[href="login.jsp"]{
     color: #212529 !important;
     border-color: rgba(0, 0, 0, 0.5) !important;
 }
@@ -466,16 +488,24 @@ body {
 }
 
 /* Colores de marca para redes sociales */
-.btn-facebook { background-color: #3b5998; }
+.btn-facebook { background-color: #3b5998; color: white; border-color: #3b5998; }
 .btn-twitter,
-.btn-x { background-color: #111; }
+.btn-x { background-color: #111; color: white; border-color: #111; }
 .btn-x:hover,
-.btn-twitter:hover { background-color: #000; }
-.btn-google { background-color: #ea4335; }
+.btn-twitter:hover { background-color: #000; color: white; border-color: #000; }
+.btn-google { background-color: #ea4335; color: white; border-color: #ea4335; }
+
+[data-bs-theme="light"] .btn-facebook,
+[data-bs-theme="light"] .btn-twitter,
+[data-bs-theme="light"] .btn-x,
+[data-bs-theme="light"] .btn-google {
+    color: white; /* Ensure icons stay white on colored background */
+}
+
 /* Fix label and link colors in auth forms for dark mode */
 .custom-modal label,
 .custom-modal a,
-.custom-modal span {
+.custom-modal span:not(.input-group-text):not(.custom-modal-divider) {
     color: var(--text-color) !important;
 }
 
@@ -485,12 +515,21 @@ body {
 
 [data-bs-theme="light"] .custom-modal label,
 [data-bs-theme="light"] .custom-modal a,
-[data-bs-theme="light"] .custom-modal span {
+[data-bs-theme="light"] .custom-modal span:not(.input-group-text):not(.custom-modal-divider) {
     color: #6c757d !important;
 }
 
 [data-bs-theme="light"] .custom-modal h2 {
     color: #212529 !important;
+}
+
+/* Fix placeholder colors */
+.custom-modal .form-control::placeholder {
+    color: #111 !important;
+}
+
+[data-bs-theme="light"] .custom-modal .form-control::placeholder {
+    color: rgba(0, 0, 0, 0.5);
 }
 
 /* Hero section styles for category pages */
@@ -550,10 +589,15 @@ body {
 
 [data-bs-theme="light"] .category-hero {
     background-image:
-            linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(226, 232, 240, 0.9)),
             var(--category-hero-image, url('../img/fallback-backdrop.svg')),
             url('../img/fallback-backdrop.svg');
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    color: #212529;
+}
+
+[data-bs-theme="light"] .category-hero .display-4,
+[data-bs-theme="light"] .category-hero h1 {
+    color: #212529 !important;
 }
 
 [data-bs-theme="light"] .category-hero-card {
@@ -567,6 +611,11 @@ body {
 [data-bs-theme="light"] .category-hero-highlight,
 [data-bs-theme="light"] .category-hero-meta {
     color: #2f2f2f;
+}
+
+[data-bs-theme="light"] .category-hero-card,
+[data-bs-theme="light"] .category-hero-card * {
+    color: #fff !important;
 }
 
 /* Nuevos estilos para el dropdown comercial de categorias */
@@ -635,9 +684,14 @@ body {
 }
 
 [data-bs-theme="light"] .category-card {
-    background: rgba(0, 0, 0, 0.04);
+    background:
+            var(--category-card-image, url('../img/fallback-backdrop.svg')),
+            url('../img/fallback-backdrop.svg');
     border-color: rgba(0, 0, 0, 0.08);
     color: #212529;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 [data-bs-theme="light"] .category-card-cta {
@@ -777,4 +831,40 @@ body.overlay-open {
 
 [data-bs-theme="light"] .category-card-cta {
     color: rgba(0, 0, 0, 0.7);
+}
+
+/* Circle Tabs Styles */
+.circle-tab {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: var(--card-bg);
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.18s cubic-bezier(0.4,0,0.2,1), box-shadow 0.18s, background 0.18s, color 0.18s;
+    margin: 0 8px;
+    outline: none;
+}
+.circle-tab.active,
+.circle-tab:focus,
+.circle-tab:hover {
+    background: var(--accent-color);
+    color: #fff;
+    transform: scale(1.13);
+    box-shadow: 0 6px 18px rgba(241,179,78,0.18);
+    border-color: var(--accent-color);
+    z-index: 2;
+}
+@media (max-width: 600px) {
+    .circle-tab {
+        width: 70px;
+        height: 70px;
+        font-size: 0.95rem;
+    }
 }

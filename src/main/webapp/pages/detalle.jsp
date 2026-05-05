@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
@@ -96,17 +97,17 @@
 
 <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top" style="background-color: rgba(0,0,0,0.8);">
     <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
             <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3172/3172552.png'">
         </a>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
                 <li class="nav-item">
-                    <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.html">
+                    <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.jsp">
                         <i class="bi bi-arrow-left me-2"></i>Volver
                     </button>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="../index.html">Volver al Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="../index.jsp">Volver al Inicio</a></li>
             </ul>
         </div>
     </div>
@@ -242,3 +243,4 @@
 <script src="../js/script.js"></script>
 </body>
 </html>
+

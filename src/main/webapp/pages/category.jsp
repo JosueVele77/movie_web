@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
@@ -8,6 +9,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../css/styles.css">
+    <script>
+        // Sincronizar modo claro/oscuro al cargar la página de categoría
+        document.addEventListener('DOMContentLoaded', function() {
+            const html = document.documentElement;
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                html.setAttribute('data-bs-theme', savedTheme);
+            }
+        });
+    </script>
 </head>
 <body>
 <div id="stars-container"></div>
@@ -15,7 +26,7 @@
 
 <nav class="navbar navbar-expand-lg custom-navbar py-3">
     <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
             <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo">
         </a>
     </div>
@@ -24,7 +35,7 @@
 <header class="category-hero text-white">
     <div class="container py-5">
         <div class="d-flex justify-content-start mb-3">
-            <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.html">
+            <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.jsp">
                 <i class="bi bi-arrow-left me-2"></i>Volver
             </button>
         </div>
@@ -128,3 +139,4 @@
 </script>
 </body>
 </html>
+

@@ -1,9 +1,10 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineStore - Mi Contenido</title>
+    <title>CineStore - Mis Favoritos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
@@ -12,25 +13,25 @@
 <div class="planet"></div>
 <div class="container py-5">
     <div class="d-flex justify-content-start mb-3">
-        <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.html">
+        <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.jsp">
             <i class="bi bi-arrow-left me-2"></i>Volver
         </button>
     </div>
-    <h1 class="mb-4">Mi Contenido Comprado</h1>
-    <div id="purchased-grid" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4"></div>
+    <h1 class="mb-4">Mis Favoritos</h1>
+    <div id="favorites-grid" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4"></div>
 </div>
 <script src="../js/script.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const purchased = JSON.parse(localStorage.getItem('purchased')) || [];
-        const grid = document.getElementById('purchased-grid');
+        const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        const grid = document.getElementById('favorites-grid');
         if (grid) {
-            if (purchased.length === 0) {
-                grid.innerHTML = '<p>No has comprado ninguna película todavía.</p>';
+            if (favorites.length === 0) {
+                grid.innerHTML = '<p>No tienes películas favoritas todavía.</p>';
                 return;
             }
 
-            purchased.forEach(movie => {
+            favorites.forEach(movie => {
                 const col = document.createElement('div');
                 col.className = 'col';
                 const posterSrc = movie.posterPath ? `${IMG_URL}${movie.posterPath}` : FALLBACK_POSTER_URL;
@@ -49,3 +50,4 @@
 </script>
 </body>
 </html>
+
