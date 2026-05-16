@@ -994,3 +994,115 @@ body.page-leaving::after {
         transform: translateY(0) scale(1);
     }
 }
+
+/* =========================================
+   CORRECCIÓN DE TARJETAS DE CATEGORÍA EN MODO CLARO
+   ========================================= */
+
+[data-bs-theme="light"] .category-card {
+    /* Restauramos el filtro oscuro transparente sobre la imagen */
+    background:
+            linear-gradient(140deg, rgba(18, 18, 18, 0.75), rgba(20, 20, 20, 0.4)),
+            var(--category-card-image, url('../img/fallback-backdrop.svg')),
+            url('../img/fallback-backdrop.svg') !important;
+    background-size: cover !important;
+    background-position: center !important;
+
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    color: #ffffff !important; /* Forzamos texto blanco siempre */
+}
+
+/* Forzamos el color del texto secundario (Ver películas) a gris claro */
+[data-bs-theme="light"] .category-card-cta {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Efecto hover suave en modo claro */
+[data-bs-theme="light"] .category-card:hover {
+    border-color: rgba(0, 0, 0, 0.4) !important;
+    color: #ffffff !important;
+}
+
+/* =========================================
+   CARRUSEL: ANIMACIÓN DE PROGRESO Y CONTROLES
+   ========================================= */
+
+/* 1. Mejor visibilidad de las flechas (Botones circulares flotantes) */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.6) !important; /* Fondo oscuro semitransparente */
+    border-radius: 50%;
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+    background-size: 1.5rem !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Visibilidad de flechas en Modo Claro */
+[data-bs-theme="light"] .carousel-control-prev-icon,
+[data-bs-theme="light"] .carousel-control-next-icon {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    border: 2px solid rgba(0,0,0,0.1);
+    /* Invertimos el color del ícono SVG blanco nativo para que se vea negro */
+    filter: invert(1) grayscale(100);
+}
+
+/* Efecto hover vibrante en las flechas */
+.carousel-control-prev:hover .carousel-control-prev-icon,
+.carousel-control-next:hover .carousel-control-next-icon {
+    background-color: var(--accent-color) !important;
+    border-color: var(--accent-color);
+    transform: scale(1.15);
+    filter: none !important; /* El ícono vuelve a ser blanco sobre el fondo de color */
+}
+
+/* 2. Indicadores animados (Barras de progreso) */
+.carousel-indicators {
+    bottom: 20px;
+    gap: 10px;
+}
+
+.carousel-indicators button {
+    width: 45px !important;
+    height: 5px !important;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.25) !important; /* Pista de fondo */
+    border: none !important;
+    position: relative;
+    overflow: hidden;
+    margin: 0 !important;
+    opacity: 1 !important; /* Forzamos que siempre sean visibles */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* La barra dinámica que se va llenando */
+.carousel-indicators button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background-color: var(--accent-color); /* Tu color corporativo */
+    border-radius: 5px;
+}
+
+/* Sincronización exacta con Bootstrap: 5 segundos para llenarse */
+.carousel-indicators button.active::after {
+    animation: carouselProgress 5s linear forwards;
+}
+
+/* ¡Toque Premium! Bootstrap pausa el carrusel si el mouse está encima.
+   Con esta regla, también pausamos la barra visualmente para que todo tenga sentido */
+#mainMovieCarousel:hover .carousel-indicators button.active::after,
+#loginCarousel:hover .carousel-indicators button.active::after {
+    animation-play-state: paused;
+}
+
+/* Keyframes de progreso */
+@keyframes carouselProgress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}

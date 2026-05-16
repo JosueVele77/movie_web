@@ -256,46 +256,74 @@ async function fetchGenres() {
     }
 }
 
+// --- Menú de Categorías Dinámico ---
 function populateCategoriesDropdown(genres) {
     if (!categoriesMenu) return;
+
+    // Solo definimos los iconos. ¡Las imágenes se descargarán solas desde la API!
     const config = {
-        accion: { icon: 'bi-lightning-charge-fill', image: 'https://image.tmdb.org/t/p/original/6ELCZlTA5lGUops70hKdB83WJxH.jpg' },
-        aventura: { icon: 'bi-compass-fill', image: 'https://image.tmdb.org/t/p/original/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg' },
-        animacion: { icon: 'bi-stars', image: 'https://image.tmdb.org/t/p/original/v6mvOKC3GeQ1a8r2P7K1E1Ed1zN.jpg' },
-        comedia: { icon: 'bi-emoji-laughing-fill', image: 'https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5fK5VQsXEG.jpg' },
-        crimen: { icon: 'bi-shield-lock-fill', image: 'https://image.tmdb.org/t/p/original/4q2hz2m8hubgvijz8Ez0T2Os2Yv.jpg' },
-        drama: { icon: 'bi-people-fill', image: 'https://image.tmdb.org/t/p/original/70Rm9ItxKuEKN8iu6rNjfwAYUCJ.jpg' },
-        fantasia: { icon: 'bi-magic', image: 'https://image.tmdb.org/t/p/original/sg7klpt1xwK1IJirBI9EHaqQwJ5.jpg' },
-        historia: { icon: 'bi-hourglass-split', image: 'https://image.tmdb.org/t/p/original/suH5n0Iy1LOXk81C5k3L6G1YQJt.jpg' },
-        horror: { icon: 'bi-ghost', image: 'https://image.tmdb.org/t/p/original/bOGkgRGdhrBYJSLpXaxhXVstddV.jpg' },
-        misterio: { icon: 'bi-search', image: 'https://image.tmdb.org/t/p/original/9Gtg2DzBhmYamXBS1hKAhiwbBKS.jpg' },
-        romance: { icon: 'bi-heart-fill', image: 'https://image.tmdb.org/t/p/original/qH3Y8N4KeO3GQZcZBf1Vj3ZzH2G.jpg' },
-        'ciencia ficcion': { icon: 'bi-cpu-fill', image: 'https://image.tmdb.org/t/p/original/xcXALwBjdHIjrESpGVhghqj8fGT.jpg' },
-        suspense: { icon: 'bi-eye-fill', image: 'https://image.tmdb.org/t/p/original/8yPSYhooj8nyBbmV3GVdLDL3U1E.jpg' },
-        guerra: { icon: 'bi-shield-fill', image: 'https://image.tmdb.org/t/p/original/mf4V7H4FfZ2lIY9pJMRr4L5BfIY.jpg' },
-        western: { icon: 'bi-collection-play-fill', image: 'https://image.tmdb.org/t/p/original/6iUNJZymJBMXXriQyFZfLAKnjO6.jpg' }
+        accion: { icon: 'bi-lightning-charge-fill' },
+        aventura: { icon: 'bi-compass-fill' },
+        animacion: { icon: 'bi-stars' },
+        comedia: { icon: 'bi-emoji-laughing-fill' },
+        crimen: { icon: 'bi-shield-lock-fill' },
+        documental: { icon: 'bi-camera-video-fill' },
+        drama: { icon: 'bi-people-fill' },
+        familia: { icon: 'bi-house-heart-fill' },
+        fantasia: { icon: 'bi-magic' },
+        historia: { icon: 'bi-hourglass-split' },
+        terror: { icon: 'bi-ghost' },
+        musica: { icon: 'bi-music-note-beamed' },
+        misterio: { icon: 'bi-search' },
+        romance: { icon: 'bi-heart-fill' },
+        'ciencia ficcion': { icon: 'bi-cpu-fill' },
+        'pelicula de tv': { icon: 'bi-tv-fill' },
+        suspense: { icon: 'bi-eye-fill' },
+        belica: { icon: 'bi-shield-fill' },
+        western: { icon: 'bi-collection-play-fill' }
     };
-    const defaultImage = 'https://image.tmdb.org/t/p/original/8eihUxjQsJ7WvGySkVMC0EwbPAD.jpg';
+
     const normalizeKey = (value) => value
         .toLowerCase()
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
         .replace(/\s+/g, ' ')
         .trim();
+
     genres.forEach(genre => {
         const key = normalizeKey(genre.name);
-        const entry = config[key] || { icon: 'bi-film', image: defaultImage };
+        const entry = config[key] || { icon: 'bi-film' };
+
         const card = document.createElement('a');
         card.className = 'category-card';
         card.href = `pages/category.jsp?id=${genre.id}&name=${encodeURIComponent(genre.name)}`;
-        card.style.setProperty('--category-card-image', `url('${entry.image}')`);
+
+        // Imagen temporal oscura por si tarda unos milisegundos en cargar la API
+        card.style.setProperty('--category-card-image', `url('${FALLBACK_BACKDROP_URL}')`);
+
         card.innerHTML = `
             <span class="category-card-icon"><i class="bi ${entry.icon}"></i></span>
             <span class="category-card-title">${genre.name}</span>
-            <span class="category-card-cta">Ver peliculas</span>
+            <span class="category-card-cta">Ver películas</span>
         `;
+
         card.addEventListener('click', () => toggleCategoriesOverlay(false));
         categoriesMenu.appendChild(card);
+
+        // --- MAGIA: Consultamos la API para buscar la película más popular de este género ---
+        fetch(buildApiUrl(`/discover/movie?with_genres=${genre.id}&sort_by=popularity.desc`))
+            .then(res => res.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    // Buscamos la primera película que tenga una imagen de fondo válida
+                    const movie = data.results.find(m => m.backdrop_path);
+                    if (movie) {
+                        // Reemplazamos el fondo oscuro por la imagen oficial
+                        card.style.setProperty('--category-card-image', `url('https://image.tmdb.org/t/p/w500${movie.backdrop_path}')`);
+                    }
+                }
+            })
+            .catch(err => console.warn(`No se pudo cargar la imagen para ${genre.name}:`, err));
     });
 }
 
@@ -516,9 +544,11 @@ if (searchClearButton) {
 }
 
 // --- User Actions ---
+// --- User Actions ---
 function toggleFavorite(icon, movieData) {
     if (!state.isLoggedIn) {
-        alert('Debes iniciar sesión para añadir a favoritos.');
+        // Llamamos al nuevo modal estilizado
+        showAuthRequiredModal('añadir películas a tus favoritos');
         return;
     }
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -536,16 +566,17 @@ function toggleFavorite(icon, movieData) {
 
 function purchaseMovie(movieData) {
     if (!state.isLoggedIn) {
-        alert('Debes iniciar sesión para comprar.');
+        // Llamamos al nuevo modal estilizado
+        showAuthRequiredModal('comprar esta película');
         return;
     }
     let purchased = JSON.parse(localStorage.getItem('purchased')) || [];
     if (!purchased.some(p => p.id === movieData.id)) {
         purchased.push(movieData);
         localStorage.setItem('purchased', JSON.stringify(purchased));
-        alert(`¡"${movieData.title}" ha sido añadido a tu contenido!`);
+        alert('¡"' + movieData.title + '" ha sido añadido a tu contenido!');
     } else {
-        alert(`Ya eres dueño de "${movieData.title}".`);
+        alert('Ya eres dueño de "' + movieData.title + '".');
     }
 }
 
@@ -591,3 +622,61 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAndRenderLoginCarousel();
     }
 });
+
+// --- PREVENIR CONGELAMIENTO AL REGRESAR (Bfcache) ---
+window.addEventListener('pageshow', function (event) {
+    // Si el usuario regresa a la página (ya sea por el botón Atrás o por caché)
+    // eliminamos el bloqueo de pantalla y la capa de fundido
+    document.body.classList.remove('page-leaving');
+
+    // Y devolvemos la tarjeta que se expandió a su tamaño normal
+    const expandedCard = document.querySelector('.movie-card-expanding');
+    if (expandedCard) {
+        expandedCard.classList.remove('movie-card-expanding');
+    }
+});
+
+// --- Modal de Autenticación Dinámico ---
+function showAuthRequiredModal(actionText) {
+    // Si ya existe un modal previo, lo eliminamos para no duplicarlo
+    const existingModal = document.getElementById('authModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Calculamos las rutas dependiendo de si estamos en la raíz o en la carpeta /pages/
+    const loginPath = window.location.pathname.includes('/pages/') ? 'login.jsp' : 'pages/login.jsp';
+    const registerPath = window.location.pathname.includes('/pages/') ? 'registro.jsp' : 'pages/registro.jsp';
+
+    // Creamos la estructura HTML del Modal usando las clases de Bootstrap y tu CSS
+    const modalHtml = `
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal" style="background-color: var(--card-bg);">
+          <div class="modal-header border-bottom border-secondary">
+            <h5 class="modal-title fw-bold text-white" id="authModalLabel">
+                <i class="bi bi-lock-fill me-2" style="color: var(--accent-color);"></i>Acceso Requerido
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <i class="bi bi-person-circle display-1 text-secondary mb-3 d-block"></i>
+            <p class="fs-5 text-white">Para ${actionText}, necesitas iniciar sesión.</p>
+            <p class="text-muted small mb-0">¡Únete a nuestra órbita y disfruta del mejor contenido digital!</p>
+          </div>
+          <div class="modal-footer border-top border-secondary justify-content-center gap-3 pb-4">
+            <a href="${loginPath}" class="btn btn-login rounded-pill px-4 py-2 text-white fw-bold">Iniciar Sesión</a>
+            <a href="${registerPath}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-bold" style="color: var(--text-color);">Crear Cuenta</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+
+    // Insertamos el modal en el body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Inicializamos y mostramos el modal usando la API de Bootstrap
+    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+    authModal.show();
+}

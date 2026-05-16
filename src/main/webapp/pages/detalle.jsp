@@ -93,7 +93,6 @@
 </head>
 <body>
 <div id="stars-container"></div>
-<div class="planet"></div>
 
 <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
     <div class="container-fluid px-4 px-lg-5">
@@ -194,13 +193,26 @@
         const errorState = document.getElementById('error-state');
         const movieContent = document.getElementById('movie-content');
         const savedTheme = localStorage.getItem('theme');
+        const btnComprarDetalle = document.getElementById('btn-comprar-detalle');
 
         if (!movieId || Number.isNaN(Number(movieId))) {
             loadingState.classList.add('d-none');
             errorState.classList.remove('d-none');
             return;
-        }if (savedTheme) {
+        } if (savedTheme) {
             document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        } if (btnComprarDetalle) {
+            btnComprarDetalle.addEventListener('click', () => {
+                const movieData = {
+                    id: movie.id,
+                    title: movie.title,
+                    posterPath: movie.poster_path || null,
+                    date: movie.release_date ? movie.release_date.split('-')[0] : 'N/D',
+                    rating: typeof movie.vote_average === 'number' ? movie.vote_average : null
+                };
+                // Llama a la función global de script.js
+                purchaseMovie(movieData);
+            });
         }
 
         try {
