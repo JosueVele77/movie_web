@@ -95,7 +95,7 @@
 <div id="stars-container"></div>
 <div class="planet"></div>
 
-<nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top" style="background-color: rgba(0,0,0,0.8);">
+<nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
     <div class="container-fluid px-4 px-lg-5">
         <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
             <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3172/3172552.png'">
@@ -134,6 +134,7 @@
         <div class="col-12 col-md-10 detail-container row">
             <div class="col-md-4 text-center text-md-start">
                 <img id="moviePoster" src="" alt="Movie Poster" class="poster-img img-fluid">
+
                 <div class="d-grid gap-2 mt-4">
                     <button class="btn btn-primary rounded-pill fw-bold py-2 btn-login" style="border:none;">
                         <i class="bi bi-ticket-perforated me-2"></i> COMPRAR ENTRADAS
@@ -192,30 +193,44 @@
         const loadingState = document.getElementById('loading-state');
         const errorState = document.getElementById('error-state');
         const movieContent = document.getElementById('movie-content');
+        const savedTheme = localStorage.getItem('theme');
 
         if (!movieId || Number.isNaN(Number(movieId))) {
             loadingState.classList.add('d-none');
             errorState.classList.remove('d-none');
             return;
+        }if (savedTheme) {
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
         }
 
         try {
-            const movieResponse = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=es-ES`);
-            const creditsResponse = await fetch(`${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}&language=es-ES`);
+            // Escapando variables de la URL para que JSP no las procese
+            const movieResponse = await fetch(`\${BASE_URL}/movie/\${movieId}?api_key=\${API_KEY}&language=es-ES`);
+            const creditsResponse = await fetch(`\${BASE_URL}/movie/\${movieId}/credits?api_key=\${API_KEY}&language=es-ES`);
 
             if (!movieResponse.ok) throw new Error('Movie not found');
 
             const movie = await movieResponse.json();
             const credits = await creditsResponse.json();
 
-            // Populate movie data
-            document.getElementById('moviePoster').src = movie.poster_path ? `${IMG_URL_W500}${movie.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
+            // Populate movie data (Escapando variables de imagen y runtime)
+            document.getElementById('moviePoster').src = movie.poster_path ? IMG_URL_W500 + movie.poster_path : 'https://via.placeholder.com/500x750?text=No+Image';
             document.getElementById('movieTitle').textContent = movie.title;
             document.getElementById('movieTagline').textContent = movie.tagline || '';
             document.getElementById('movieRating').textContent = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
             document.getElementById('movieReleaseDate').textContent = new Date(movie.release_date).toLocaleDateString() || 'Desconocida';
-            document.getElementById('movieRuntime').textContent = movie.runtime ? `${movie.runtime} min` : 'Desconocida';
+            document.getElementById('movieRuntime').textContent = movie.runtime ? `\${movie.runtime} min` : 'Desconocida';
             document.getElementById('movieOverview').textContent = movie.overview || 'No hay sinopsis disponible.';
+
+            // --- INSERTA ESTE BLOQUE AQUÍ PARA INICIALIZAR EL FONDO CINEMÁTICO ---
+            const backdropEl = document.getElementById('movieBackdrop');
+            if (backdropEl && movie.backdrop_path) {
+                backdropEl.src = 'https://image.tmdb.org/t/p/original' + movie.backdrop_path;
+                backdropEl.style.display = 'block';
+            }
+            // --------------------------------------------------------------------
+
+            document.getElementById('movieTitle').textContent = movie.title;
 
             const genresContainer = document.getElementById('movieGenres');
             if (movie.genres && movie.genres.length > 0) {
@@ -232,13 +247,14 @@
                 credits.cast.slice(0, 6).forEach(actor => {
                     const castCard = document.createElement('div');
                     castCard.className = 'col-4 col-md-2 mb-4';
+                    // Escapando las variables dentro del HTML inyectado
                     castCard.innerHTML = `
-                        <div class="cast-card">
-                            <img src="${actor.profile_path ? IMG_URL_W500 + actor.profile_path : 'https://via.placeholder.com/100x100?text=No+Image'}" alt="${actor.name}">
-                            <h6 class="mt-2 mb-0">${actor.name}</h6>
-                            <p class="text-muted small">${actor.character}</p>
-                        </div>
-                    `;
+                <div class="cast-card">
+                    <img src="\${actor.profile_path ? IMG_URL_W500 + actor.profile_path : 'https://via.placeholder.com/100x100?text=No+Image'}" alt="\${actor.name}">
+                    <h6 class="mt-2 mb-0">\${actor.name}</h6>
+                    <p class="text-muted small">\${actor.character}</p>
+                </div>
+            `;
                     castContainer.appendChild(castCard);
                 });
             }

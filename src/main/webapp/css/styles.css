@@ -833,38 +833,164 @@ body.overlay-open {
     color: rgba(0, 0, 0, 0.7);
 }
 
-/* Circle Tabs Styles */
-.circle-tab {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
+/* =========================================
+   ESTILOS DE TABS TIPO STREAMING (Una línea)
+   ========================================= */
+.streaming-tab {
+    padding: 8px 24px;
+    border-radius: 8px; /* Bordes redondeados para un aspecto moderno */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
-    background: var(--card-bg);
-    color: var(--accent-color);
-    border: 2px solid var(--accent-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: transform 0.18s cubic-bezier(0.4,0,0.2,1), box-shadow 0.18s, background 0.18s, color 0.18s;
-    margin: 0 8px;
+    background: rgba(255, 255, 255, 0.05); /* Fondo oscuro semitransparente */
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap; /* Evita que el texto baje a una segunda línea */
+    transition: all 0.2s ease-in-out;
     outline: none;
+    cursor: pointer;
 }
-.circle-tab.active,
-.circle-tab:focus,
-.circle-tab:hover {
+
+/* Modo claro para los tabs */
+[data-bs-theme="light"] .streaming-tab {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.6) !important;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Estado activo y hover */
+.streaming-tab.active,
+.streaming-tab:hover {
     background: var(--accent-color);
-    color: #fff;
-    transform: scale(1.13);
-    box-shadow: 0 6px 18px rgba(241,179,78,0.18);
+    color: #000 !important;
     border-color: var(--accent-color);
-    z-index: 2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(241,179,78,0.25);
 }
-@media (max-width: 600px) {
-    .circle-tab {
-        width: 70px;
-        height: 70px;
-        font-size: 0.95rem;
+
+[data-bs-theme="light"] .streaming-tab.active,
+[data-bs-theme="light"] .streaming-tab:hover {
+    color: #fff !important;
+}
+
+/* Ocultar barra de desplazamiento en móviles pero mantener la funcionalidad */
+.catalog-tabs::-webkit-scrollbar {
+    display: none;
+}
+.catalog-tabs {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* =========================================
+   ANIMACIÓN PROFESIONAL PARA PESTAÑAS
+   ========================================= */
+
+@keyframes panelFadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.catalog-panel {
+    /* Estado inicial invisible para evitar parpadeos */
+    opacity: 0;
+    /* Curva cubic-bezier para un efecto suave y orgánico */
+    animation: panelFadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.catalog-panel.hidden {
+    display: none !important;
+    /* Reseteamos la animación cuando se oculta para que vuelva a ejecutarse al mostrarse */
+    animation: none;
+}
+
+/* Opcional: Pequeño efecto de "hundimiento" al hacer clic en los botones de las pestañas */
+.catalog-tab {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s;
+}
+
+.catalog-tab:active {
+    transform: scale(0.92) !important;
+}
+
+/* =========================================
+   TRANSICIÓN CINEMÁTICA DE SALIDA (ESTILO NETFLIX)
+   ========================================= */
+
+/* Bloquea el scroll de la página de origen durante la animación */
+body.page-leaving {
+    overflow: hidden;
+}
+
+/* Capa oscura que cubre el resto de la interfaz de forma gradual */
+body.page-leaving::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--bg-color); /* <-- ¡Aquí está la magia! */
+    opacity: 0;
+    z-index: 9998;
+    animation: fadeToTheme 0.4s ease-in-out forwards;
+}
+
+/* La tarjeta seleccionada se expande sobre el fundido negro */
+.movie-card.movie-card-expanding {
+    position: relative;
+    z-index: 9999 !important;
+    transform: scale(1.08);
+    box-shadow: 0 0 35px rgba(241, 179, 78, 0.5); /* Resplandor usando tu color --accent-color */
+    border-color: var(--accent-color) !important;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+    pointer-events: none; /* Evita clics duplicados */
+}
+
+@keyframes fadeToBlack {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* =========================================
+   TRANSICIÓN CINEMÁTICA DE ENTRADA EN DETALLE.JSP
+   ========================================= */
+
+/* El póster gigante de fondo entra con un sutil zoom inverso dramático */
+.movie-backdrop {
+    animation: backdropCinemaIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* El panel de detalles emerge desde abajo con un escalado suave */
+#movie-content:not(.d-none) .detail-container {
+    animation: detailContentIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes backdropCinemaIn {
+    0% {
+        opacity: 0;
+        transform: scale(1.15);
+        filter: brightness(0) blur(15px);
+    }
+    100% {
+        opacity: 0.4;
+        transform: scale(1);
+        filter: brightness(0.4) blur(0);
+    }
+}
+
+@keyframes detailContentIn {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }

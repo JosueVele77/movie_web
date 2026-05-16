@@ -113,10 +113,10 @@
     <section id="catalog-section" class="view-section">
         <h3 id="catalog-title" class="section-title fw-bold mb-4" style="color: var(--accent-color);">ESTRENOS ACTUALES</h3>
 
-        <div id="catalog-tabs-container" class="catalog-tabs mb-4 d-flex justify-content-center gap-4" role="tablist">
-            <button class="catalog-tab circle-tab active" type="button" data-tab="recent" role="tab">🎬 Cartelera</button>
-            <button class="catalog-tab circle-tab" type="button" data-tab="popular" role="tab">🔥 Populares</button>
-            <button class="catalog-tab circle-tab" type="button" data-tab="top" role="tab">⭐ Mejor Valoradas</button>
+        <div id="catalog-tabs-container" class="catalog-tabs mb-4 d-flex justify-content-start justify-content-md-center gap-3 overflow-auto py-2 px-2" role="tablist">
+            <button class="catalog-tab streaming-tab active" type="button" data-tab="recent" role="tab">🎬 Cartelera</button>
+            <button class="catalog-tab streaming-tab" type="button" data-tab="popular" role="tab">🔥 Populares</button>
+            <button class="catalog-tab streaming-tab" type="button" data-tab="top" role="tab">⭐ Mejor Valoradas</button>
         </div>
 
         <section id="panel-recent" class="catalog-panel">
