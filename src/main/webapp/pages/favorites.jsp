@@ -13,7 +13,7 @@
 <div class="planet"></div>
 <div class="container py-5">
     <div class="d-flex justify-content-start mb-3">
-        <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.html">
+        <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.jsp">
             <i class="bi bi-arrow-left me-2"></i>Volver
         </button>
     </div>

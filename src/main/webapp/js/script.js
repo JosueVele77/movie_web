@@ -68,22 +68,34 @@ if (logoutButton) {
     });
 }
 
-if (window.location.pathname.includes('login.html')) {
+if (window.location.pathname.includes('login.jsp')) {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             localStorage.setItem('isLoggedIn', 'true');
-            window.location.href = '../index.html';
+            window.location.href = '../index.jsp';
         });
     }
 }
 
 // --- General Functions ---
 function openMovieDetail(movieId) {
-    // Adjust path for category pages
-    const path = window.location.pathname.includes('/pages/') ? '' : 'pages/';
-    window.location.href = `${path}detalle.html?id=${movieId}`;
+    try {
+        if (Number.isFinite(Number(movieId))) {
+            localStorage.setItem('lastMovieId', String(movieId));
+        }
+    } catch (error) {
+        console.warn('No se pudo guardar lastMovieId:', error);
+    }
+    const currentPath = window.location.pathname;
+    const basePath = currentPath.includes('/pages/')
+        ? currentPath.replace(/\/pages\/[^/]*$/, '/pages/')
+        : currentPath.replace(/\/[^/]*$/, '/');
+    const detailPath = basePath.includes('/pages/')
+        ? `${basePath}detalle.jsp`
+        : `${basePath}pages/detalle.jsp`;
+    window.location.href = `${detailPath}?id=${encodeURIComponent(movieId)}`;
 }
 
 function updateCatalogTabs() {
@@ -172,7 +184,7 @@ if (backButtons.length > 0) {
                 window.history.back();
                 return;
             }
-            const fallback = button.getAttribute('data-fallback') || 'index.html';
+            const fallback = button.getAttribute('data-fallback') || 'index.jsp';
             window.location.href = fallback;
         });
     });
@@ -253,7 +265,7 @@ function populateCategoriesDropdown(genres) {
         const entry = config[key] || { icon: 'bi-film', image: defaultImage };
         const card = document.createElement('a');
         card.className = 'category-card';
-        card.href = `pages/category.html?id=${genre.id}&name=${encodeURIComponent(genre.name)}`;
+        card.href = `pages/category.jsp?id=${genre.id}&name=${encodeURIComponent(genre.name)}`;
         card.style.setProperty('--category-card-image', `url('${entry.image}')`);
         card.innerHTML = `
             <span class="category-card-icon"><i class="bi ${entry.icon}"></i></span>
@@ -409,10 +421,10 @@ async function fetchAndRenderMovies(endpoint, containerId, limit = CATALOG_LIMIT
             const col = document.createElement('div');
             col.className = 'col';
             col.innerHTML = `
-                <div class="movie-card h-100 d-flex flex-column">
+                <div class="movie-card h-100 d-flex flex-column" style="cursor: pointer;" onclick="openMovieDetail(${movieData.id})">
                     <div style="position: relative;">
-                        <img src="${posterSrc}" alt="${movieData.title}" style="cursor: pointer;" onerror="this.onerror=null;this.src='${FALLBACK_POSTER_URL}'" onclick="openMovieDetail(${movieData.id})">
-                        <i class="bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon" onclick="toggleFavorite(this, ${JSON.stringify(movieData).replace(/"/g, '&quot;')})"></i>
+                        <img src="${posterSrc}" alt="${movieData.title}" onerror="this.onerror=null;this.src='${FALLBACK_POSTER_URL}'">
+                        <i class="bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon" onclick="event.stopPropagation(); toggleFavorite(this, ${JSON.stringify(movieData).replace(/"/g, '&quot;')})"></i>
                     </div>
                     <div class="movie-info d-flex flex-column flex-grow-1">
                         <h3 class="movie-title">${movieData.title}</h3>

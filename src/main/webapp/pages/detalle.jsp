@@ -97,17 +97,17 @@
 
 <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top" style="background-color: rgba(0,0,0,0.8);">
     <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
             <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3172/3172552.png'">
         </a>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
                 <li class="nav-item">
-                    <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.html">
+                    <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.jsp">
                         <i class="bi bi-arrow-left me-2"></i>Volver
                     </button>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="../index.html">Volver al Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="../index.jsp">Volver al Inicio</a></li>
             </ul>
         </div>
     </div>
@@ -116,12 +116,18 @@
 <img id="movieBackdrop" class="movie-backdrop" src="" alt="" style="display: none;">
 
 <div class="container pb-5">
-    <div id="loading-state" class="row justify-content-center">
-        <!-- Skeleton UI -->
+    <div id="loading-state" class="row justify-content-center text-center mt-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <h4 class="text-white mt-3">Buscando en los archivos de la galaxia...</h4>
     </div>
 
     <div id="error-state" class="text-center d-none" style="margin-top: 20vh;">
-        <!-- Error message -->
+        <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i>
+        <h2 class="text-white mt-3">¡Houston, tenemos un problema!</h2>
+        <p class="text-muted fs-5">No pudimos encontrar esta película o el ID es incorrecto.</p>
+        <a href="../index.jsp" class="btn btn-outline-light mt-3">Volver a la cartelera</a>
     </div>
 
     <div id="movie-content" class="row justify-content-center d-none">
@@ -174,13 +180,20 @@
         const IMG_URL_W500 = 'https://image.tmdb.org/t/p/w500';
 
         const urlParams = new URLSearchParams(window.location.search);
-        const movieId = urlParams.get('id');
+        let movieId = urlParams.get('id');
+        if (!movieId || Number.isNaN(Number(movieId))) {
+            try {
+                movieId = localStorage.getItem('lastMovieId');
+            } catch (error) {
+                console.warn('No se pudo leer lastMovieId:', error);
+            }
+        }
 
         const loadingState = document.getElementById('loading-state');
         const errorState = document.getElementById('error-state');
         const movieContent = document.getElementById('movie-content');
 
-        if (!movieId) {
+        if (!movieId || Number.isNaN(Number(movieId))) {
             loadingState.classList.add('d-none');
             errorState.classList.remove('d-none');
             return;
