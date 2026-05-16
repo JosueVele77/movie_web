@@ -34,7 +34,7 @@
                 </button>
 
                 <div class="d-flex justify-content-start mb-3">
-                    <button class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-bold text-dark" data-action="go-back" data-fallback="../index.jsp">
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-bold text-dark" data-action="go-back" data-fallback="../index.html">
                         <i class="bi bi-arrow-left me-1"></i>Volver
                     </button>
                 </div>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="text-center mt-3 mb-2">
                         <span class="text-muted small d-block mb-1">¿Ya tienes cuenta?</span>
-                        <a href="login.jsp" class="btn border-secondary rounded-pill px-4 py-2 mt-2 w-100 fw-bold d-block text-decoration-none text-center d-flex justify-content-center align-items-center text-dark">Volver a iniciar sesión</a>
+                        <a href="login.html" class="btn border-secondary rounded-pill px-4 py-2 mt-2 w-100 fw-bold d-block text-decoration-none text-center d-flex justify-content-center align-items-center text-dark">Volver a iniciar sesión</a>
                     </div>
                 </form>
             </div>
@@ -131,4 +131,3 @@
 </script>
 </body>
 </html>
-

@@ -461,13 +461,13 @@ body {
 }
 
 /* Fix register link text colors */
-.custom-modal a[href="registro.jsp"],
-.custom-modal a[href="login.jsp"]{
+.custom-modal a[href="registro.html"],
+.custom-modal a[href="login.html"]{
     color: var(--text-color) !important;
 }
 
-[data-bs-theme="light"] .custom-modal a[href="registro.jsp"],
-[data-bs-theme="light"] .custom-modal a[href="login.jsp"]{
+[data-bs-theme="light"] .custom-modal a[href="registro.html"],
+[data-bs-theme="light"] .custom-modal a[href="login.html"]{
     color: #212529 !important;
     border-color: rgba(0, 0, 0, 0.5) !important;
 }

@@ -36,7 +36,7 @@
                 </button>
 
                 <div class="d-flex justify-content-start mb-3">
-                    <button class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-bold text-dark" data-action="go-back" data-fallback="../index.jsp">
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-bold text-dark" data-action="go-back" data-fallback="../index.html">
                         <i class="bi bi-arrow-left me-1"></i>Volver
                     </button>
                 </div>
@@ -88,7 +88,7 @@
                     </div>
 
                     <p class="text-center m-0 text-muted" style="font-size: 0.9rem;">
-                        ¿No tienes cuenta? <a href="registro.jsp" class="text-primary fw-bold text-decoration-none">Regístrate</a>
+                        ¿No tienes cuenta? <a href="registro.html" class="text-primary fw-bold text-decoration-none">Regístrate</a>
                     </p>
                 </form>
             </div>
@@ -120,4 +120,3 @@
 </script>
 </body>
 </html>
-

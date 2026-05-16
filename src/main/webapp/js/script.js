@@ -68,13 +68,13 @@ if (logoutButton) {
     });
 }
 
-if (window.location.pathname.includes('login.jsp')) {
+if (window.location.pathname.includes('login.html')) {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             localStorage.setItem('isLoggedIn', 'true');
-            window.location.href = '../index.jsp';
+            window.location.href = '../index.html';
         });
     }
 }
@@ -83,7 +83,7 @@ if (window.location.pathname.includes('login.jsp')) {
 function openMovieDetail(movieId) {
     // Adjust path for category pages
     const path = window.location.pathname.includes('/pages/') ? '' : 'pages/';
-    window.location.href = `${path}detalle.jsp?id=${movieId}`;
+    window.location.href = `${path}detalle.html?id=${movieId}`;
 }
 
 function updateCatalogTabs() {
@@ -172,7 +172,7 @@ if (backButtons.length > 0) {
                 window.history.back();
                 return;
             }
-            const fallback = button.getAttribute('data-fallback') || 'index.jsp';
+            const fallback = button.getAttribute('data-fallback') || 'index.html';
             window.location.href = fallback;
         });
     });
@@ -253,7 +253,7 @@ function populateCategoriesDropdown(genres) {
         const entry = config[key] || { icon: 'bi-film', image: defaultImage };
         const card = document.createElement('a');
         card.className = 'category-card';
-        card.href = `pages/category.jsp?id=${genre.id}&name=${encodeURIComponent(genre.name)}`;
+        card.href = `pages/category.html?id=${genre.id}&name=${encodeURIComponent(genre.name)}`;
         card.style.setProperty('--category-card-image', `url('${entry.image}')`);
         card.innerHTML = `
             <span class="category-card-icon"><i class="bi ${entry.icon}"></i></span>

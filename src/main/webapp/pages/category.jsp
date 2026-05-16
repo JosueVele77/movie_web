@@ -26,7 +26,7 @@
 
 <nav class="navbar navbar-expand-lg custom-navbar py-3">
     <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
             <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo">
         </a>
     </div>
@@ -35,7 +35,7 @@
 <header class="category-hero text-white">
     <div class="container py-5">
         <div class="d-flex justify-content-start mb-3">
-            <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.jsp">
+            <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.html">
                 <i class="bi bi-arrow-left me-2"></i>Volver
             </button>
         </div>
