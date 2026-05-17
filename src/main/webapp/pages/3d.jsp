@@ -7,7 +7,7 @@
     <title>CineStore - Experiencia 3D</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../css/styles_3d.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <script>
         // Sincronizar modo claro/oscuro instantáneamente
         const savedTheme = localStorage.getItem('theme');

@@ -1106,3 +1106,122 @@ body.page-leaving::after {
     0% { width: 0%; }
     100% { width: 100%; }
 }
+
+/* =========================================
+   SALA 3D - CORRECCIÓN DEFINITIVA (ANTI-ACORDEÓN)
+   ========================================= */
+
+/* 1. Aplicamos la perspectiva únicamente a la columna, no a la tarjeta entera */
+#movie-3d-grid .col {
+    perspective: 1000px;
+    z-index: 1;
+}
+
+/* 2. Anulamos cualquier regla 3D que rompa el overflow y preparamos la transición */
+#movie-3d-grid .movie-card {
+    transform-style: flat !important; /* <-- Esto es vital: evita que la imagen explote */
+    transition: transform 0.4s ease-out, box-shadow 0.4s ease-out !important;
+    position: relative;
+    will-change: transform;
+}
+
+/* 3. Efecto de rotación y levitación con luces holográficas (Anaglifo) */
+#movie-3d-grid .movie-card:hover {
+    transform: translateY(-12px) rotateX(6deg) rotateY(-6deg) scale(1.03) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow:
+            -12px 15px 25px rgba(0, 246, 255, 0.2),
+            12px 15px 25px rgba(255, 0, 79, 0.2),
+            0 25px 50px rgba(0,0,0,0.8) !important;
+    z-index: 10;
+}
+
+/* 4. Zoom interno a la imagen seguro (sin usar el eje Z problemático) */
+#movie-3d-grid .movie-card img {
+    transition: transform 0.5s ease !important;
+    transform: translateZ(0) !important; /* Fuerza a la imagen a quedarse en su sitio */
+}
+
+#movie-3d-grid .movie-card:hover img {
+    transform: scale(1.08) !important;
+}
+
+/* Texto del título superior con efecto de gafas 3D */
+.clear-3d-title {
+    text-shadow: -3px 0 rgba(255, 0, 79, 0.8), 3px 0 rgba(0, 246, 255, 0.8);
+    animation: holographicPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes holographicPulse {
+    0% { text-shadow: -2px 0 rgba(255, 0, 79, 0.7), 2px 0 rgba(0, 246, 255, 0.7); }
+    100% {
+        text-shadow: -4px 0 rgba(255, 0, 79, 0.9), 4px 0 rgba(0, 246, 255, 0.9);
+        filter: hue-rotate(10deg);
+    }
+}
+
+/* =========================================
+   PÁGINA DE ERROR 404 CINEMÁTICA
+   ========================================= */
+.error-404-title {
+    font-size: 8rem;
+    font-weight: 900;
+    line-height: 1;
+    /* Crea un degradado metálico que termina en tu color corporativo */
+    background: linear-gradient(135deg, #ffffff 40%, var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    animation: floatAnimation404 4s ease-in-out infinite alternate;
+}
+
+/* Modificación de color para el degradado del texto en modo claro */
+[data-bs-theme="light"] .error-404-title {
+    background: linear-gradient(135deg, #111116 40%, var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.error-icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+.error-cinema-icon {
+    color: rgba(255, 255, 255, 0.15);
+    display: block;
+    animation: slowFilmRotate 20s linear infinite;
+}
+
+[data-bs-theme="light"] .error-cinema-icon {
+    color: rgba(0, 0, 0, 0.12);
+}
+
+.error-badge-icon {
+    position: absolute;
+    bottom: 2px;
+    right: -2px;
+    font-size: 2.2rem;
+    color: #ff3366; /* Tono carmesí de advertencia de Bootstrap */
+    text-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+}
+
+/* Animación de flotación sutil para simular gravedad cero */
+@keyframes floatAnimation404 {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-12px);
+    }
+}
+
+/* Rotación lenta para el icono de fondo de la cinta de película */
+@keyframes slowFilmRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
