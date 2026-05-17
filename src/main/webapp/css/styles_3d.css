@@ -1,40 +1,42 @@
 /* =========================================
-   EFECTOS AVANZADOS DE LA SALA 3D
+   EFECTOS AVANZADOS DE LA SALA 3D (VERSIÓN ESTABLE)
    ========================================= */
 
-/* Configuración del entorno tridimensional */
-.grid-render-3d {
-    perspective: 1200px; /* Crea el punto focal de profundidad */
+/* Le damos la perspectiva de profundidad directamente a las columnas de Bootstrap */
+.grid-render-3d .col {
+    perspective: 1000px;
+    z-index: 1;
 }
 
-/* La tarjeta se transforma en un objeto flotante */
+/* La tarjeta ahora gira limpiamente desde su centro */
 .movie-card.movie-card-3d {
-    transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease, border-color 0.4s;
-    backface-visibility: hidden;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease, border-color 0.4s;
+    transform-origin: center center;
+    will-change: transform; /* Optimiza el rendimiento de la animación */
 }
 
-/* Efecto de inclinación y rotación en los ejes X e Y al pasar el mouse */
+/* Al pasar el cursor, la tarjeta se eleva e inclina sin romper el layout */
 .movie-card.movie-card-3d:hover {
-    transform: translateY(-12px) rotateX(12deg) rotateY(-8deg) translateZ(10px);
+    transform: translateY(-15px) rotateX(8deg) rotateY(-8deg);
     border-color: var(--accent-color) !important;
-    /* Sombras dobles proyectadas simulando iluminación lateral azul y roja (Efecto anaglifo) */
+    /* Efecto holográfico Anaglifo (Rojo/Cian) en la sombra proyectada */
     box-shadow:
-            12px 16px 35px rgba(0, 246, 255, 0.15),
-            -12px 16px 35px rgba(255, 0, 79, 0.15),
-            0 20px 40px rgba(0,0,0,0.6) !important;
+            15px 20px 30px rgba(0, 246, 255, 0.15),
+            -15px 20px 30px rgba(255, 0, 79, 0.15),
+            0 25px 50px rgba(0,0,0,0.7) !important;
+    z-index: 10; /* Se asegura de flotar por encima de las tarjetas vecinas */
 }
 
-/* El póster interior sobresale hacia adelante creando capas de profundidad */
+/* Zoom orgánico a la imagen sin usar el eje Z conflictivo */
 .movie-card.movie-card-3d img {
-    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .movie-card.movie-card-3d:hover img {
-    transform: translateZ(40px) scale(1.04);
+    transform: scale(1.08);
 }
 
-/* Texto con efecto de gafas 3D (Anaglifo de canales de color desfasados) */
+/* Texto del título superior con efecto de gafas 3D */
 .clear-3d-title {
     text-shadow: -3px 0 rgba(255, 0, 79, 0.8), 3px 0 rgba(0, 246, 255, 0.8);
     animation: holographicPulse 3s ease-in-out infinite alternate;
