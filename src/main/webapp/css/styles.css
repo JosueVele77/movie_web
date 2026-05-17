@@ -1094,8 +1094,6 @@ body.page-leaving::after {
     animation: carouselProgress 5s linear forwards;
 }
 
-/* ¡Toque Premium! Bootstrap pausa el carrusel si el mouse está encima.
-   Con esta regla, también pausamos la barra visualmente para que todo tenga sentido */
 #mainMovieCarousel:hover .carousel-indicators button.active::after,
 #loginCarousel:hover .carousel-indicators button.active::after {
     animation-play-state: paused;
@@ -1108,24 +1106,24 @@ body.page-leaving::after {
 }
 
 /* =========================================
-   SALA 3D - CORRECCIÓN DEFINITIVA (ANTI-ACORDEÓN)
+   SALA 3D - EFECTO HOLOGRÁFICO
    ========================================= */
 
-/* 1. Aplicamos la perspectiva únicamente a la columna, no a la tarjeta entera */
+/* Perspectiva a la columna contenedora */
 #movie-3d-grid .col {
     perspective: 1000px;
     z-index: 1;
 }
 
-/* 2. Anulamos cualquier regla 3D que rompa el overflow y preparamos la transición */
+/* Base de la tarjeta: Preparamos la animación */
 #movie-3d-grid .movie-card {
-    transform-style: flat !important; /* <-- Esto es vital: evita que la imagen explote */
+    transform-style: flat !important;
     transition: transform 0.4s ease-out, box-shadow 0.4s ease-out !important;
     position: relative;
     will-change: transform;
 }
 
-/* 3. Efecto de rotación y levitación con luces holográficas (Anaglifo) */
+/* Efecto Hover: Rotación 3D y luces anaglifo (Cian/Rojo) */
 #movie-3d-grid .movie-card:hover {
     transform: translateY(-12px) rotateX(6deg) rotateY(-6deg) scale(1.03) !important;
     border-color: var(--accent-color) !important;
@@ -1136,17 +1134,17 @@ body.page-leaving::after {
     z-index: 10;
 }
 
-/* 4. Zoom interno a la imagen seguro (sin usar el eje Z problemático) */
+/* Evitamos que la imagen se salga del marco */
 #movie-3d-grid .movie-card img {
     transition: transform 0.5s ease !important;
-    transform: translateZ(0) !important; /* Fuerza a la imagen a quedarse en su sitio */
+    transform: translateZ(0) !important;
 }
 
 #movie-3d-grid .movie-card:hover img {
     transform: scale(1.08) !important;
 }
 
-/* Texto del título superior con efecto de gafas 3D */
+/* Efecto visual de gafas 3D para el título */
 .clear-3d-title {
     text-shadow: -3px 0 rgba(255, 0, 79, 0.8), 3px 0 rgba(0, 246, 255, 0.8);
     animation: holographicPulse 3s ease-in-out infinite alternate;
@@ -1224,4 +1222,127 @@ body.page-leaving::after {
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* =========================================
+   CAJA FÍSICA INTERACTIVA EN DETALLE (SOLO ORIGEN 3D)
+   ========================================= */
+
+/* Habilita la profundidad en el contenedor principal de la cuadrícula de Bootstrap */
+#movie-poster-container.case-active {
+    perspective: 1500px; /* Crea el entorno 3D */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* El escenario donde flotará la caja */
+.case-scene {
+    width: 300px; /* Ajustar según layout original */
+    height: 450px;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+}
+
+/* La Caja Física: Controla la rotación y la transición */
+.movie-case {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d; /* Vital para que las caras no se aplasten */
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto rebote suave */
+    transform-origin: center center; /* Gira desde su eje central vertical */
+    box-shadow: 10px 10px 25px rgba(0,0,0,0.5);
+    border-radius: 8px;
+}
+
+/* Estado: Gira 180 grados al hacer clic */
+.movie-case.is-flipped {
+    transform: rotateY(180deg);
+    box-shadow: -10px 10px 25px rgba(0,0,0,0.5);
+}
+
+/* Definición común para ambas caras */
+.case-front, .case-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* Oculta la cara trasera cuando está de espaldas */
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #222;
+}
+
+/* Cara Frontal (Póster) */
+.case-front {
+    background-color: #000;
+    z-index: 2; /* Siempre encima inicialmente */
+}
+
+/* Ajuste para la imagen dentro de la caja física */
+#moviePoster.poster-case-active {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    margin: 0 !important;
+}
+
+/* Cara Trasera (Contraportada) */
+.case-back {
+    background: linear-gradient(135deg, #1f1f25 0%, #111116 100%);
+    transform: rotateY(180deg); /* Se inicializa volteada por defecto */
+    padding: 20px;
+    color: #ddd;
+    display: flex;
+    flex-direction: column;
+}
+
+.case-back-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Título superior de la contraportada con tu color corporativo */
+.case-back-content h5 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+}
+
+/* Texto de la sinopsis real copiado de TMDB */
+.case-back-content p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 10px;
+    /* Cortamos el texto si es muy largo para que no se salga de la caja física */
+    display: -webkit-box;
+    -webkit-line-clamp: 12;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Iconos de datos técnicos y código de barras */
+.tech-specs {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 10px;
+}
+
+.barcode {
+    color: rgba(255,255,255,0.5);
+}
+
+/* Animación parpadeante para la instrucción del usuario */
+.flip-hint {
+    animation: hintPulse 2s infinite alternate;
+}
+
+@keyframes hintPulse {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
 }

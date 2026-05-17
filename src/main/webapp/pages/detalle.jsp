@@ -193,26 +193,16 @@
         const errorState = document.getElementById('error-state');
         const movieContent = document.getElementById('movie-content');
         const savedTheme = localStorage.getItem('theme');
-        const btnComprarDetalle = document.getElementById('btn-comprar-detalle');
+
+        // Aplicamos el tema guardado
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        }
 
         if (!movieId || Number.isNaN(Number(movieId))) {
             loadingState.classList.add('d-none');
             errorState.classList.remove('d-none');
             return;
-        } if (savedTheme) {
-            document.documentElement.setAttribute('data-bs-theme', savedTheme);
-        } if (btnComprarDetalle) {
-            btnComprarDetalle.addEventListener('click', () => {
-                const movieData = {
-                    id: movie.id,
-                    title: movie.title,
-                    posterPath: movie.poster_path || null,
-                    date: movie.release_date ? movie.release_date.split('-')[0] : 'N/D',
-                    rating: typeof movie.vote_average === 'number' ? movie.vote_average : null
-                };
-                // Llama a la función global de script.js
-                purchaseMovie(movieData);
-            });
         }
 
         try {
@@ -226,7 +216,9 @@
             const credits = await creditsResponse.json();
 
             // Populate movie data (Escapando variables de imagen y runtime)
-            document.getElementById('moviePoster').src = movie.poster_path ? IMG_URL_W500 + movie.poster_path : 'https://via.placeholder.com/500x750?text=No+Image';
+            const posterEl = document.getElementById('moviePoster');
+            posterEl.src = movie.poster_path ? IMG_URL_W500 + movie.poster_path : 'https://via.placeholder.com/500x750?text=No+Image';
+
             document.getElementById('movieTitle').textContent = movie.title;
             document.getElementById('movieTagline').textContent = movie.tagline || '';
             document.getElementById('movieRating').textContent = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
@@ -234,16 +226,14 @@
             document.getElementById('movieRuntime').textContent = movie.runtime ? `\${movie.runtime} min` : 'Desconocida';
             document.getElementById('movieOverview').textContent = movie.overview || 'No hay sinopsis disponible.';
 
-            // --- INSERTA ESTE BLOQUE AQUÍ PARA INICIALIZAR EL FONDO CINEMÁTICO ---
+            // --- FONDO CINEMÁTICO ---
             const backdropEl = document.getElementById('movieBackdrop');
             if (backdropEl && movie.backdrop_path) {
                 backdropEl.src = 'https://image.tmdb.org/t/p/original' + movie.backdrop_path;
                 backdropEl.style.display = 'block';
             }
-            // --------------------------------------------------------------------
 
-            document.getElementById('movieTitle').textContent = movie.title;
-
+            // --- GÉNEROS ---
             const genresContainer = document.getElementById('movieGenres');
             if (movie.genres && movie.genres.length > 0) {
                 movie.genres.forEach(genre => {
@@ -254,12 +244,12 @@
                 });
             }
 
+            // --- REPARTO ---
             const castContainer = document.getElementById('movieCast');
             if (credits.cast && credits.cast.length > 0) {
                 credits.cast.slice(0, 6).forEach(actor => {
                     const castCard = document.createElement('div');
                     castCard.className = 'col-4 col-md-2 mb-4';
-                    // Escapando las variables dentro del HTML inyectado
                     castCard.innerHTML = `
                 <div class="cast-card">
                     <img src="\${actor.profile_path ? IMG_URL_W500 + actor.profile_path : 'https://via.placeholder.com/100x100?text=No+Image'}" alt="\${actor.name}">
@@ -270,6 +260,93 @@
                     castContainer.appendChild(castCard);
                 });
             }
+
+            // --- BOTÓN DE COMPRAR ---
+            // (¡Corregido! Debe ir aquí abajo porque necesita usar la variable 'movie')
+            const btnComprarDetalle = document.getElementById('btn-comprar-detalle');
+            if (btnComprarDetalle) {
+                btnComprarDetalle.addEventListener('click', () => {
+                    const movieData = {
+                        id: movie.id,
+                        title: movie.title,
+                        posterPath: movie.poster_path || null,
+                        date: movie.release_date ? movie.release_date.split('-')[0] : 'N/D',
+                        rating: typeof movie.vote_average === 'number' ? movie.vote_average : null
+                    };
+                    purchaseMovie(movieData);
+                });
+            }
+
+            // ==============================================================
+            // --- EFECTO CAJA FÍSICA INTERACTIVA 3D ---
+            // ==============================================================
+            const comesFrom3d = localStorage.getItem('comesFrom3dSection') === 'true';
+
+            if (posterEl && comesFrom3d) {
+                // Borramos la bandera para que no afecte a futuras visitas normales
+                localStorage.removeItem('comesFrom3dSection');
+
+                // Preparamos el contenedor para el modo 3D
+                const posterContainer = posterEl.parentElement;
+                posterContainer.classList.add('case-active');
+
+                // Creamos los elementos HTML de la caja
+                const scene = document.createElement('div');
+                scene.className = 'case-scene';
+
+                const caseEl = document.createElement('div');
+                caseEl.className = 'movie-case';
+
+                const frontEl = document.createElement('div');
+                frontEl.className = 'case-front';
+
+                // Movemos el póster a la cara frontal
+                posterContainer.replaceChild(scene, posterEl);
+                posterEl.className = 'poster-case-active';
+                frontEl.appendChild(posterEl);
+                caseEl.appendChild(frontEl);
+
+                // Creamos la contraportada
+                const backEl = document.createElement('div');
+                backEl.className = 'case-back';
+
+                // Formateamos datos para imprimir en la contraportada
+                const genresString = movie.genres ? movie.genres.map(g => g.name).join(', ') : 'N/D';
+                const ratingValue = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/D';
+
+                // Limpiamos la sinopsis para que encaje
+                const overviewText = movie.overview ? movie.overview : 'Sinopsis no disponible en este momento.';
+
+                backEl.innerHTML = `
+                    <div class="case-back-content">
+                        <h5 class="back-title" style="color: var(--accent-color); font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;">\${movie.title}</h5>
+                        <p class="back-synopsis" style="font-size: 0.9rem; line-height: 1.5; color: rgba(255,255,255,0.8); display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden;">\${overviewText}</p>
+                        <div class="tech-specs mt-auto small text-muted" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                            <p class="mb-1">Géneros: \${genresString}</p>
+                            <p class="mb-0">Puntuación: \${ratingValue} / 10</p>
+                        </div>
+                        <div class="barcode mt-3 text-end" style="color: rgba(255,255,255,0.5);">
+                            <i class="bi bi-upc-scan" style="font-size: 2.2rem;"></i>
+                            <span class="d-block small text-muted">ID:\${movie.id}</span>
+                        </div>
+                    </div>
+                `;
+
+                caseEl.appendChild(backEl);
+                scene.appendChild(caseEl);
+
+                // Insertamos la instrucción de clic
+                const instructionHint = document.createElement('p');
+                instructionHint.className = 'text-center text-info mt-3 small flip-hint';
+                instructionHint.innerHTML = '<i class="bi bi-arrow-repeat me-1 fs-6"></i> Haz clic en la portada para darle la vuelta';
+                posterContainer.appendChild(instructionHint);
+
+                // Evento para girar 180 grados
+                scene.addEventListener('click', () => {
+                    caseEl.classList.toggle('is-flipped');
+                });
+            }
+            // ==============================================================
 
             loadingState.classList.add('d-none');
             movieContent.classList.remove('d-none');

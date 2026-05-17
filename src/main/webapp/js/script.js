@@ -81,23 +81,28 @@ if (window.location.pathname.includes('login.jsp')) {
 
 // --- General Functions ---
 function openMovieDetail(movieId) {
-    // Detectamos la tarjeta clickeada dinámicamente usando el evento global de la ventana
     const evt = window.event;
     if (evt) {
         const card = evt.target.closest('.movie-card');
+
+        // --- DETECTAR SI VIENE DE LA SALA 3D ---
+        if (card && card.closest('#movie-3d-grid')) {
+            localStorage.setItem('comesFrom3dSection', 'true');
+        } else {
+            localStorage.removeItem('comesFrom3dSection'); // Limpia si viene de otro lado
+        }
+        // ---------------------------------------
+
         if (card) {
-            // Disparamos las clases de la animación CSS
             card.classList.add('movie-card-expanding');
             document.body.classList.add('page-leaving');
 
-            // Retrasamos la navegación exactamente el tiempo que dura la transición visual
             setTimeout(() => {
                 executeNavigation(movieId);
             }, 400);
             return;
         }
     }
-    // Fallback de seguridad por si falla la captura del evento
     executeNavigation(movieId);
 }
 
