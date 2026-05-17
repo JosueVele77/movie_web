@@ -1,0 +1,51 @@
+/* =========================================
+   EFECTOS AVANZADOS DE LA SALA 3D
+   ========================================= */
+
+/* Configuración del entorno tridimensional */
+.grid-render-3d {
+    perspective: 1200px; /* Crea el punto focal de profundidad */
+}
+
+/* La tarjeta se transforma en un objeto flotante */
+.movie-card.movie-card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease, border-color 0.4s;
+    backface-visibility: hidden;
+}
+
+/* Efecto de inclinación y rotación en los ejes X e Y al pasar el mouse */
+.movie-card.movie-card-3d:hover {
+    transform: translateY(-12px) rotateX(12deg) rotateY(-8deg) translateZ(10px);
+    border-color: var(--accent-color) !important;
+    /* Sombras dobles proyectadas simulando iluminación lateral azul y roja (Efecto anaglifo) */
+    box-shadow:
+            12px 16px 35px rgba(0, 246, 255, 0.15),
+            -12px 16px 35px rgba(255, 0, 79, 0.15),
+            0 20px 40px rgba(0,0,0,0.6) !important;
+}
+
+/* El póster interior sobresale hacia adelante creando capas de profundidad */
+.movie-card.movie-card-3d img {
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.movie-card.movie-card-3d:hover img {
+    transform: translateZ(40px) scale(1.04);
+}
+
+/* Texto con efecto de gafas 3D (Anaglifo de canales de color desfasados) */
+.clear-3d-title {
+    text-shadow: -3px 0 rgba(255, 0, 79, 0.8), 3px 0 rgba(0, 246, 255, 0.8);
+    animation: holographicPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes holographicPulse {
+    0% {
+        text-shadow: -2px 0 rgba(255, 0, 79, 0.7), 2px 0 rgba(0, 246, 255, 0.7);
+    }
+    100% {
+        text-shadow: -4px 0 rgba(255, 0, 79, 0.9), 4px 0 rgba(0, 246, 255, 0.9);
+        filter: hue-rotate(10deg);
+    }
+}

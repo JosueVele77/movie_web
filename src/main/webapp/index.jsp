@@ -39,6 +39,12 @@
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
                 <li class="nav-item">
+                    <a class="nav-link text-decoration-none fw-bold d-flex align-items-center gap-1" href="pages/3d.jsp" style="color: var(--accent-color) !important;">
+                        <i class="bi bi-badge-3d-fill fs-4"></i> 3D
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <button class="nav-link btn btn-link p-0 text-decoration-none" id="categories-toggle" aria-haspopup="dialog" aria-controls="categories-overlay">
                         Categorías
                     </button>
