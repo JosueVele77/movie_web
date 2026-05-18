@@ -38,7 +38,7 @@
                 Lo sentimos, la película, función o sección que estás buscando no se encuentra disponible en cartelera o ha sido removida del espacio sideral.
             </p>
 
-            <a href="../index.jsp" class="btn btn-login rounded-pill px-5 py-3 fw-bold shadow-lg transition-all">
+            <a href="${pageContext.request.contextPath}/index.jsp" class="btn btn-login rounded-pill px-5 py-3 fw-bold shadow-lg transition-all">
                 <i class="bi bi-camera-reel-fill me-2"></i>Volver al Catálogo
             </a>
         </div>

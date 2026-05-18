@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -38,25 +37,26 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("usuarioLogueado", usuario);
 
-            // Redirección robusta utilizando la raíz del contexto de la aplicación web
             String contextPath = request.getContextPath();
 
             switch (usuario.getIdPer()) {
-                case 1: // Administrador
+                case 1:
                     response.sendRedirect(contextPath + "/dashboard");
                     break;
-                case 2: // Empleado / Vendedor
+                case 2:
                     response.sendRedirect(contextPath + "/pages/editar_productos.jsp");
                     break;
-                case 3: // Cliente
+                case 3:
                     response.sendRedirect(contextPath + "/index.jsp");
                     break;
                 default:
                     response.sendRedirect(contextPath + "/pages/login.jsp?error=RolInvalido");
             }
         } else {
-            // Si las credenciales fallan o el usuario no existe en la BD
-            response.sendRedirect(request.getContextPath() + "/pages/login.jsp?error=1");
+            // ¡PRUEBA DE DIAGNÓSTICO!: Si llega aquí, imprimimos un mensaje directo en el navegador
+            response.setContentType("text/html;charset=UTF-8");
+            response.getWriter().println("<h1>El usuario retornó NULL desde la base de datos.</h1>");
+            response.getWriter().println("<p>Revisa las credenciales en tu formulario o la conexión en tu BD.</p>");
         }
     }
 }

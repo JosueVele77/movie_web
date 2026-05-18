@@ -15,35 +15,8 @@
     </error-page>
 
     <servlet>
-        <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>io.github.josuevele77.movie_web.controller.LoginServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/LoginServlet</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>RegistroServlet</servlet-name>
-        <servlet-class>io.github.josuevele77.movie_web.controller.RegistroServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>RegistroServlet</servlet-name>
-        <url-pattern>/RegistroServlet</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ReactivarProductoServlet</servlet-name>
-        <servlet-class>io.github.josuevele77.movie_web.controller.ReactivarProductoServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ReactivarProductoServlet</servlet-name>
-        <url-pattern>/ReactivarProductoServlet</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>DashboardServlet</servlet-name>
-        <servlet-class>io.github.josuevele77.movie_web.servlet.DashboardServlet</servlet-class>
+        <servlet-class>io.github.josuevele77.movie_web.controller.DashboardServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>DashboardServlet</servlet-name>
