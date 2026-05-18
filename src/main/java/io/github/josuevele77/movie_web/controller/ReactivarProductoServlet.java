@@ -1,11 +1,11 @@
 package io.github.josuevele77.movie_web.controller;
 
 import io.github.josuevele77.movie_web.dao.ProductoDAO;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet("/ReactivarProductoServlet")
@@ -22,13 +22,13 @@ public class ReactivarProductoServlet extends HttpServlet {
                 // Ejecuta la actualización SQL (estado_pr = TRUE)
                 if (dao.reactivarProducto(idPr)) {
                     // Recarga la Dashboard notificando el éxito
-                    response.sendRedirect(request.getContextPath() + "/pages/dashboard.jsp?reactivado=1");
+                    response.sendRedirect(request.getContextPath() + "/dashboard?reactivado=1");
                     return;
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
         }
-        response.sendRedirect(request.getContextPath() + "/pages/dashboard.jsp");
+        response.sendRedirect(request.getContextPath() + "/dashboard");
     }
 }

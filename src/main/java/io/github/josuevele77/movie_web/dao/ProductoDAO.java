@@ -12,7 +12,7 @@ public class ProductoDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDouble(1, precio);
             // Si elige ocultar se envía false, si no, mantiene su visibilidad actual
-            ps.setBoolean(2, !ocultar);
+            ps.setBoolean(2, ocultar);
             ps.setInt(3, idPr);
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); return false; }

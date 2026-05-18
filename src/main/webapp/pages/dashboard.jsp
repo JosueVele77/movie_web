@@ -1,25 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
-<%@ page import="io.github.josuevele77.movie_web.dao.ProductoDAO" %>
-<%@ page import="io.github.josuevele77.movie_web.dao.UsuarioDAO" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Producto" %>
 <%@ page import="java.util.List" %>
 <%
-    // FILTRO DE SEGURIDAD: Evita que clientes o empleados entren por URL directa
     Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
-    if (userSession == null || userSession.getIdPer() != 1) {
-        response.sendRedirect(request.getContextPath() + "/pages/login.jsp?error=NoAutorizado");
+    if (userSession == null) {
+        response.sendRedirect("login.jsp");
         return;
     }
-
-    // Instancia de DAOs para pintar información en tiempo real
-    ProductoDAO prodDAO = new ProductoDAO();
-    UsuarioDAO userDAO = new UsuarioDAO();
-
-    int totalProductos = prodDAO.contarTotalProductos();
-    int productosOcultos = prodDAO.contarProductosOcultos();
-    int totalClientes = userDAO.contarClientes();
-    List<Producto> ocultos = prodDAO.listarOcultos();
+    int totalProductos = (Integer) request.getAttribute("totalP");
+    int productosOcultos = (Integer) request.getAttribute("ocultosP");
+    int totalClientes = (Integer) request.getAttribute("totalC");
+    List<Producto> ocultos = (List<Producto>) request.getAttribute("listaOcultos");
 %>
 <!DOCTYPE html>
 <html lang="es">

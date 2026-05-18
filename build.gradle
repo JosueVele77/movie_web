@@ -27,12 +27,12 @@ dependencies {
     implementation('org.jboss.weld.se:weld-se-core:6.0.3.Final')
     implementation("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2")
     implementation("org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1")
+    implementation 'org.postgresql:postgresql:42.7.3'
 
     implementation files(fileTree('src/libs'))
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
-    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 }
 
 test {
