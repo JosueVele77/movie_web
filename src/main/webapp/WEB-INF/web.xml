@@ -14,12 +14,4 @@
         <location>/pages/error404.jsp</location>
     </error-page>
 
-    <servlet>
-        <servlet-name>DashboardServlet</servlet-name>
-        <servlet-class>io.github.josuevele77.movie_web.controller.DashboardServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>DashboardServlet</servlet-name>
-        <url-pattern>/dashboard</url-pattern>
-    </servlet-mapping>
 </web-app>

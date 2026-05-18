@@ -12,7 +12,7 @@ public class UsuarioDAO {
     public Usuario login(String correo, String clave) {
         String sql = "SELECT u.*, p.descripcion_per FROM public.tb_usuario u " +
                 "JOIN public.tb_perfil p ON u.id_per = p.id_per " +
-                "WHERE u.correo_us = ? AND u.clave_us = ?";
+                "WHERE TRIM(u.correo_us) = ? AND TRIM(u.clave_us) = ?";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
