@@ -85,6 +85,17 @@
                             <div class="invalid-feedback">Las contraseñas no coinciden.</div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="estado_civil">Estado Civil:</label>
+                        <select id="estado_civil" name="id_est" class="form-control" required>
+                            <option value="" disabled selected>Seleccione su estado civil</option>
+                            <option value="1">Soltero/a</option>
+                            <option value="2">Casado/a</option>
+                            <option value="3">Divorciado/a</option>
+                            <option value="4">Viudo/a</option>
+                        </select>
+                    </div>
+
                     <div class="form-check mb-4">
                         <input class="form-check-input border-secondary" type="checkbox" value="1" id="signupTerms" required>
                         <label class="form-check-label text-muted small" for="signupTerms">
@@ -102,6 +113,7 @@
                         <span class="text-muted small d-block mb-1">¿Ya tienes cuenta?</span>
                         <a href="login.jsp" class="btn border-secondary rounded-pill px-4 py-2 mt-2 w-100 fw-bold d-block text-decoration-none text-center d-flex justify-content-center align-items-center text-dark">Volver a iniciar sesión</a>
                     </div>
+
                 </form>
             </div>
         </div>
