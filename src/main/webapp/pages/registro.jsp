@@ -17,7 +17,6 @@
 
         <div class="row g-0 h-100" style="min-height: inherit;">
 
-            <!-- MITAD IZQUIERDA: LOGO -->
             <div class="col-md-6 d-none d-md-flex flex-column justify-content-center align-items-center p-5 position-relative" style="background-color: #141414; border-right: 1px solid rgba(255,255,255,0.05);">
                 <div class="brand text-center">
                     <img src="../img/logo-cinestore.svg" alt="CineStore" style="width: 120px; height: 120px; object-fit: contain; margin-bottom: 1rem;">
@@ -26,9 +25,7 @@
                 </div>
             </div>
 
-            <!-- MITAD DERECHA: FORMULARIO -->
             <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center bg-white position-relative" data-bs-theme="light">
-                <!-- Botón de cambio de tema -->
                 <button id="theme-toggle" class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-3" title="Cambiar tema" aria-label="Cambiar tema">
                     <i class="bi bi-moon-stars" id="theme-icon"></i>
                 </button>
@@ -44,76 +41,76 @@
                     <p class="text-muted small">Ingresa tus datos para registrarte</p>
                 </div>
 
-                <form id="signup-form" action="#" method="POST" novalidate>
+                <%-- Alerta de error si el registro falla (Opcional, manejado por el Servlet) --%>
+                <% if(request.getParameter("error") != null) { %>
+                <div class="alert alert-danger py-2 small" role="alert">
+                    Error al crear la cuenta. Revisa los datos e intenta nuevamente.
+                </div>
+                <% } %>
+
+                <form id="signup-form" action="${pageContext.request.contextPath}/RegistroServlet" method="POST">
+
                     <div class="mb-4">
                         <label for="signupName" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Nombre completo</label>
-                        <div class="input-group has-validation border-bottom border-2">
+                        <div class="input-group border-bottom border-2">
                             <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-person text-muted fs-5"></i></span>
-                            <input type="text" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupName" name="name" placeholder="Tu nombre" autocomplete="name" required>
-                            <div class="invalid-feedback">Ingresa tu nombre.</div>
+                            <input type="text" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupName" name="nombre" placeholder="Tu nombre" required>
                         </div>
-                    </div>
-                    <div class="mb-4">
-                        <label for="signupEmail" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Correo</label>
-                        <div class="input-group has-validation border-bottom border-2">
-                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-envelope text-muted fs-5"></i></span>
-                            <input type="email" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupEmail" name="email" placeholder="tu@email.com" autocomplete="email" required>
-                            <div class="invalid-feedback">Ingresa un correo válido.</div>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label for="signupUsername" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Usuario</label>
-                        <div class="input-group has-validation border-bottom border-2">
-                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-at text-muted fs-5"></i></span>
-                            <input type="text" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupUsername" name="username" placeholder="Elige un usuario" autocomplete="username" required>
-                            <div class="invalid-feedback">El usuario es obligatorio.</div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="signupPassword" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Contraseña</label>
-                        <div class="input-group has-validation border-bottom border-2">
-                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-lock text-muted fs-5"></i></span>
-                            <input type="password" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupPassword" name="password" placeholder="Crea una contraseña" autocomplete="new-password" minlength="6" required>
-                            <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres.</div>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label for="signupPasswordConfirm" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Confirmar contraseña</label>
-                        <div class="input-group has-validation border-bottom border-2">
-                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-shield-lock text-muted fs-5"></i></span>
-                            <input type="password" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupPasswordConfirm" name="passwordConfirm" placeholder="Repite tu contraseña" autocomplete="new-password" minlength="6" required>
-                            <div class="invalid-feedback">Las contraseñas no coinciden.</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="estado_civil">Estado Civil:</label>
-                        <select id="estado_civil" name="id_est" class="form-control" required>
-                            <option value="" disabled selected>Seleccione su estado civil</option>
-                            <option value="1">Soltero/a</option>
-                            <option value="2">Casado/a</option>
-                            <option value="3">Divorciado/a</option>
-                            <option value="4">Viudo/a</option>
-                        </select>
                     </div>
 
-                    <div class="form-check mb-4">
+                    <div class="mb-4">
+                        <label for="signupCedula" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Cédula</label>
+                        <div class="input-group border-bottom border-2">
+                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-card-heading text-muted fs-5"></i></span>
+                            <input type="text" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupCedula" name="cedula" placeholder="Tu número de cédula" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="signupEmail" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Correo</label>
+                        <div class="input-group border-bottom border-2">
+                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-envelope text-muted fs-5"></i></span>
+                            <input type="email" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupEmail" name="correo" placeholder="tu@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="estado_civil" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Estado Civil</label>
+                        <div class="input-group border-bottom border-2">
+                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-people text-muted fs-5"></i></span>
+                            <select id="estado_civil" name="id_est" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" required>
+                                <option value="" disabled selected>Seleccione su estado civil</option>
+                                <option value="1">Soltero/a</option>
+                                <option value="2">Casado/a</option>
+                                <option value="3">Divorciado/a</option>
+                                <option value="4">Viudo/a</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="signupPassword" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Contraseña</label>
+                        <div class="input-group border-bottom border-2">
+                            <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-lock text-muted fs-5"></i></span>
+                            <input type="password" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupPassword" name="clave" placeholder="Crea una contraseña" minlength="6" required>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-4 mt-2">
                         <input class="form-check-input border-secondary" type="checkbox" value="1" id="signupTerms" required>
                         <label class="form-check-label text-muted small" for="signupTerms">
                             Acepto los términos y condiciones
                         </label>
-                        <div class="invalid-feedback">Debes aceptar los términos para continuar.</div>
                     </div>
+
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-signup text-white rounded-pill py-3 fw-bold shadow-sm" style="font-size: 1rem;">CREAR CUENTA</button>
+                        <button type="submit" class="btn btn-signup text-white rounded-pill py-3 fw-bold shadow-sm" style="font-size: 1rem; background-color: var(--accent-color, #0d6efd);">CREAR CUENTA</button>
                     </div>
-                    <div id="signupSuccess" class="alert alert-success py-2 small d-none" role="alert">
-                        Cuenta creada (demo). Redirigiendo a Iniciar sesión...
-                    </div>
+
                     <div class="text-center mt-3 mb-2">
                         <span class="text-muted small d-block mb-1">¿Ya tienes cuenta?</span>
                         <a href="login.jsp" class="btn border-secondary rounded-pill px-4 py-2 mt-2 w-100 fw-bold d-block text-decoration-none text-center d-flex justify-content-center align-items-center text-dark">Volver a iniciar sesión</a>
                     </div>
-
                 </form>
             </div>
         </div>
