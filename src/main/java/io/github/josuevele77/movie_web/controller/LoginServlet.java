@@ -18,10 +18,13 @@ public class LoginServlet extends HttpServlet {
         String clave = request.getParameter("clave");
 
         // Controlamos que los parámetros no lleguen nulos desde la interfaz web
-        if (correo == null || clave == null) {
+        if (correo == null || clave == null || correo.trim().isEmpty() || clave.trim().isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/pages/login.jsp?error=1");
             return;
         }
+
+        correo = correo.trim();
+        clave = clave.trim();
 
         UsuarioDAO dao = new UsuarioDAO();
         Usuario usuario = null;

@@ -5,45 +5,36 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:postgresql://localhost:5432/movie_web";
-    private static final String USER = "postgres";
+    private static final String URL = "jdbc:postgresql://localhost:5432/db_producto";
+    private static final String USER = "postgres"; // Asegúrate de que sean tus credenciales correctas
     private static final String PASSWORD = "root";
 
-    private static Connection connection = null;
+    // ELIMINAMOS la variable 'private static Connection connection'
 
     // Constructor privado para evitar que instancien la clase
     private DatabaseConnection() {}
 
     public static Connection getConnection() {
-        if (connection == null) {
-            try {
-                // Paso requerido para aplicaciones web: registrar el driver manualmente
-                Class.forName("org.postgresql.Driver");
+        Connection con = null; // Creamos una variable local
+        try {
+            // Paso requerido para aplicaciones web: registrar el driver manualmente
+            Class.forName("org.postgresql.Driver");
 
-                // Establecer la conexión
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("Conexión a PostgreSQL exitosa.");
+            // Establecer una NUEVA conexión cada vez que se llama a este método
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Nueva conexión a PostgreSQL generada exitosamente.");
 
-            } catch (ClassNotFoundException e) {
-                System.err.println("Error: No se encontró el Driver de PostgreSQL. Revisa el .jar");
-                e.printStackTrace();
-            } catch (SQLException e) {
-                System.err.println("Error: Fallo al conectar con la base de datos.");
-                e.printStackTrace();
-            }
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error: No se encontró el Driver de PostgreSQL. Revisa el .jar");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Error: Fallo al conectar con la base de datos.");
+            e.printStackTrace();
         }
-        return connection;
+        return con; // Retornamos la conexión fresca
     }
 
-    public static void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-                connection = null;
-                System.out.println("Conexión cerrada.");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    // El método closeConnection() ya no es necesario aquí,
+    // porque el 'try-with-resources' de tus DAOs ya se encarga de cerrarla.
+    // Puedes borrarlo para mantener el código limpio.
 }
