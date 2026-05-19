@@ -24,13 +24,7 @@
 <div id="stars-container"></div>
 <div class="planet"></div>
 
-<nav class="navbar navbar-expand-lg custom-navbar py-3">
-    <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
-            <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo">
-        </a>
-    </div>
-</nav>
+<jsp:include page="/pages/navbar.jsp" />
 
 <header class="category-hero text-white">
     <div class="container py-5">

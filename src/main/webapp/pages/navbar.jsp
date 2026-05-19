@@ -1,7 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
 <%
-    Usuario usuarioNav = (Usuario) session.getAttribute("usuarioLogueado");
+    // Declaramos una variable única y propia para este archivo para evitar conflictos
+    Usuario un = (Usuario) session.getAttribute("usuarioLogueado");
+    String nombreUsuario = "";
+    String inicialUsuario = "";
+    if (un != null && un.getNombreUs() != null) {
+        nombreUsuario = un.getNombreUs().trim();
+        if (!nombreUsuario.isEmpty()) {
+            inicialUsuario = nombreUsuario.substring(0, 1).toUpperCase();
+        }
+    }
 %>
 <nav class="navbar navbar-expand-lg custom-navbar py-3">
     <div class="container-fluid px-4 px-lg-5">
@@ -40,16 +49,25 @@
                     </button>
                 </li>
 
-                <%-- A PARTIR DE AQUÍ SE MUESTRA EL MENÚ DINÁMICO A LA DERECHA DE CATEGORÍAS --%>
-                <% if (usuarioNav == null) { %>
-
+                <%-- LÓGICA DE CONTROL DE SESIÓN --%>
+                <% if (un == null) { %>
                 <li class="nav-item" id="login-link">
                     <a href="<%=request.getContextPath()%>/pages/login.jsp" class="nav-link" aria-label="Iniciar sesión">
-                        <i class="bi bi-person-circle login-icon" role="button"></i>
+                        <i class="bi bi-person-circle login-icon"></i>
                     </a>
                 </li>
-
                 <% } else { %>
+                <li class="nav-item dropdown" id="user-menu">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 user-menu-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="user-avatar" aria-hidden="true"><%= inicialUsuario.isEmpty() ? "?" : inicialUsuario %></span>
+                        <span class="fw-semibold user-name"><%= nombreUsuario %></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/dashboard">Gestionar cuenta</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/LogoutServlet">Cerrar Sesión</a></li>
+                    </ul>
+                </li>
 
                 <li class="nav-item" id="my-content-link">
                     <a class="nav-link" href="<%=request.getContextPath()%>/pages/my_content.jsp">Mi Contenido</a>
@@ -57,28 +75,7 @@
                 <li class="nav-item" id="favorites-link">
                     <a class="nav-link" href="<%=request.getContextPath()%>/pages/favorites.jsp">Favoritos</a>
                 </li>
-
-                <li class="nav-item dropdown" id="user-menu">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle login-icon"></i>
-                        <span class="fw-semibold"><%= usuarioNav.getNombreUs() %></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
-
-                        <%-- Si es Administrador (Rol 1), ve el Panel de Control --%>
-                        <% if (usuarioNav.getIdPer() == 1) { %>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/dashboard">Panel Admin</a></li>
-                        <% } %>
-
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/LogoutServlet">Cerrar Sesión</a></li>
-                    </ul>
-                </li>
-
                 <% } %>
-                <%-- FIN DE LA LÓGICA DINÁMICA --%>
 
                 <li class="nav-item">
                     <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle theme-btn" aria-label="Cambiar tema">
@@ -89,3 +86,45 @@
         </div>
     </div>
 </nav>
+
+<script>
+    try {
+        <% if (un == null) { %>
+        localStorage.removeItem('isLoggedIn');
+        <% } else { %>
+        localStorage.setItem('isLoggedIn', 'true');
+        <% } %>
+    } catch (e) {
+        // no-op: localStorage puede estar bloqueado
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggle = document.getElementById('userDropdown');
+        const menu = toggle ? toggle.nextElementSibling : null;
+        if (!toggle || !menu) return;
+
+        if (window.bootstrap && window.bootstrap.Dropdown) {
+            new window.bootstrap.Dropdown(toggle);
+            return;
+        }
+
+        const closeMenu = () => {
+            menu.classList.remove('show');
+            toggle.classList.remove('show');
+            toggle.setAttribute('aria-expanded', 'false');
+        };
+
+        toggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            menu.classList.toggle('show');
+            toggle.classList.toggle('show');
+            toggle.setAttribute('aria-expanded', menu.classList.contains('show') ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!toggle.contains(event.target) && !menu.contains(event.target)) {
+                closeMenu();
+            }
+        });
+    });
+</script>
