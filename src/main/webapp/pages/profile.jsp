@@ -7,8 +7,12 @@
     response.sendRedirect("login.jsp");
     return;
   }
-  // Detectar provincia desde el backend para renderizarla de entrada
-  String provinciaInicial = CedulaValidator.obtenerProvincia(userSession.getCedulaUs());
+
+  // Detectar provincia desde el backend de forma segura
+  String provinciaInicial = "";
+  if (userSession.getCedulaUs() != null && !userSession.getCedulaUs().trim().isEmpty()) {
+    provinciaInicial = CedulaValidator.obtenerProvincia(userSession.getCedulaUs());
+  }
 %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
@@ -128,7 +132,7 @@
                     <span class="input-group-text bg-transparent"><i class="fas fa-id-card"></i></span>
                     <input type="text" class="form-control pe-5" id="cedula" name="cedula" value="<%= userSession.getCedulaUs() != null ? userSession.getCedulaUs() : "" %>" maxlength="10" required>
                   </div>
-                  <span class="provincia-badge" id="provinciaBadge" style="display: block;"><%= provinciaInitial %></span>
+                  <span class="provincia-badge" id="provinciaBadge" style="display: block;"><%= provinciaInicial %></span>
                   <div class="invalid-feedback" id="cedulaFeedback">Cédula ecuatoriana inválida.</div>
                 </div>
 
@@ -172,6 +176,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module" src="<%=request.getContextPath()%>/js/pages/profile.js"></script>
+<script type="module" src="<%=request.getContextPath()%>/js/utils/profile.js"></script>
 </body>
 </html>
