@@ -42,27 +42,27 @@
                 </div>
 
                 <div class="mb-4 text-center">
-                    <p class="text-muted small mb-3 fw-bold text-uppercase" style="letter-spacing: 1px;">Selecciona tu Avatar</p>
+                    <p class="text-muted small mb-3 fw-bold text-uppercase" style="letter-spacing: 1px;">Tu Identidad</p>
 
                     <div class="avatar-main-container position-relative mb-3">
                         <div class="avatar-main-preview shadow-lg">
-                            <img src="" alt="Avatar Seleccionado" id="avatarImage">
+                            <img src="https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee" alt="Avatar Seleccionado" id="avatarImage">
                         </div>
-                        <div class="avatar-checked-badge" id="avatarBadge">
+                        <div class="avatar-checked-badge">
                             <i class="fas fa-check"></i>
                         </div>
                     </div>
 
-                    <div class="avatar-options-wrapper">
-                        <div class="avatar-options-container d-flex justify-content-center gap-3 py-2" id="avatarOptionsContainer">
-                        </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" id="toggleAvatarPanelBtn">
+                        <i class="fas fa-images me-1"></i> Cambiar opción
+                    </button>
 
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-2 px-3 style-btn" id="refreshAvatarBtn">
-                            <i class="fas fa-random me-1"></i> Cambiar opciones
-                        </button>
+                    <div class="avatar-drawer mt-3 hidden" id="avatarDrawerPanel">
+                        <div class="avatar-grid-selection p-3" id="avatarOptionsContainer">
+                        </div>
                     </div>
 
-                    <input type="hidden" name="avatarUrl" id="avatarUrl">
+                    <input type="hidden" name="avatarUrl" id="avatarUrl" value="https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee">
                 </div>
 
                 <%-- Alerta de error si el registro falla (Opcional, manejado por el Servlet) --%>

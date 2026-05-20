@@ -39,6 +39,7 @@ public class RegistroServlet extends HttpServlet {
         nuevoUsuario.setCedulaUs(cedula); // <-- Guardamos la cédula real y ya validada
         nuevoUsuario.setIdEst(1);         // Asumiendo que '1' es un ID válido en tu tabla tb_estado_civil
         nuevoUsuario.setAvatarUrl(avatarUrl);
+        nuevoUsuario.setIdPer(3);
 
         // 4. Llamar al DAO para guardar en la base de datos
         UsuarioDAO dao = new UsuarioDAO();
@@ -47,6 +48,7 @@ public class RegistroServlet extends HttpServlet {
         // 5. Validar la inserción en BD y redirigir
         if (registrado) {
             // Si el registro es exitoso, redirigimos a la página de inicio
+            request.getSession().setAttribute("usuarioLogueado", nuevoUsuario);
             response.sendRedirect(request.getContextPath() + "/index.jsp");
         } else {
             // Si falla en la BD (por ejemplo, el correo o cédula ya existen y son UNIQUE), mostramos error

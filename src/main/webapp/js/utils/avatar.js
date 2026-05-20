@@ -4,69 +4,76 @@ export function initAvatarGenerator() {
     const avatarImage = document.getElementById('avatarImage');
     const avatarUrlInput = document.getElementById('avatarUrl');
     const optionsContainer = document.getElementById('avatarOptionsContainer');
-    const refreshBtn = document.getElementById('refreshAvatarBtn');
+    const togglePanelBtn = document.getElementById('toggleAvatarPanelBtn');
+    const drawerPanel = document.getElementById('avatarDrawerPanel');
 
-    if (!avatarImage || !optionsContainer) return;
+    if (!avatarImage || !optionsContainer || !togglePanelBtn || !drawerPanel) return;
 
-    // Colecciones estéticas variadas de la API de DiceBear para poblar la baraja
-    const avatarStyles = ['bottts', 'avataaars', 'adventurer', 'lorelei', 'bottts-neutral'];
+    // Aquí centralizas todos los links de imágenes que quieras ofrecer
+    const linksDeAvatares = [
+        'https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/alligator.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/alpaca.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/anaconda.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/anteater.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/antelope.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/armadillo.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/baboon.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/badger.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/bear.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/beaver.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/bison.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/boar.webp?v=a60026c088dc0dee',
+        'https://images.avataranimals.com/animals/transparent/buffalo.webp?v=a60026c088dc0dee'
+    ];
 
-    function generateAvatarCollection() {
-        optionsContainer.innerHTML = ''; // Limpiar las miniaturas previas
+    // 1. Manejar la apertura y cierre del apartado de opciones
+    togglePanelBtn.addEventListener('click', () => {
+        drawerPanel.classList.toggle('hidden');
 
-        for (let i = 0; i < 5; i++) {
-            const randomSeed = Math.random().toString(36).substring(2, 9);
-            const chosenStyle = avatarStyles[i % avatarStyles.length];
+        // Cambiar el texto del botón según el estado del panel
+        if (drawerPanel.classList.contains('hidden')) {
+            togglePanelBtn.innerHTML = '<i class="fas fa-images me-1"></i> Cambiar opción';
+        } else {
+            togglePanelBtn.innerHTML = '<i class="fas fa-times me-1"></i> Ocultar catálogo';
+        }
+    });
 
-            // Endpoint de la API pública
-            const url = `https://api.dicebear.com/9.x/${chosenStyle}/svg?seed=${randomSeed}&backgroundColor=transparent`;
+    // 2. Construir la cuadrícula interna del catálogo
+    function renderAvatarGrid() {
+        optionsContainer.innerHTML = '';
 
-            // Construir dinámicamente la miniatura circular
+        linksDeAvatares.forEach((url, index) => {
             const optionDiv = document.createElement('div');
             optionDiv.classList.add('avatar-option');
 
-            // Dejar la tercera opción (índice 2) preseleccionada por defecto de entrada
-            if (i === 2) {
+            // Marcar visualmente cuál es la opción actualmente seleccionada en el círculo grande
+            if (url === avatarImage.src) {
                 optionDiv.classList.add('active');
-                avatarImage.src = url;
-                if (avatarUrlInput) avatarUrlInput.value = url;
             }
 
             const img = document.createElement('img');
             img.src = url;
-            img.alt = `Opción de avatar ${i + 1}`;
-
+            img.alt = `Opción ${index + 1}`;
             optionDiv.appendChild(img);
-            optionsContainer.appendChild(optionDiv);
 
-            // Manejador de eventos al alternar clic entre las miniaturas de la lista
+            // Evento al elegir un elemento del catálogo expandido
             optionDiv.addEventListener('click', () => {
-                // Limpiar la clase activa de las demás opciones en la fila
-                document.querySelectorAll('.avatar-option').forEach(element => {
-                    element.classList.remove('active');
-                });
+                // Quitar la selección activa a todos los demás círculos pequeños
+                document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('active'));
 
-                // Asignar el borde activo a la opción cliqueada
+                // Activar el círculo cliqueado
                 optionDiv.classList.add('active');
 
-                // Transición fluida actualizando el visor principal superior
-                avatarImage.style.opacity = '0.3';
-                setTimeout(() => {
-                    avatarImage.src = url;
-                    avatarImage.style.opacity = '1';
-                }, 120);
-
-                // Actualizar el valor que viajará al Servlet por POST
-                if (avatarUrlInput) avatarUrlInput.value = url;
+                // Actualizar la imagen de la vista previa principal y el valor del input para el backend
+                avatarImage.src = url;
+                avatarUrlInput.value = url;
             });
-        }
+
+            optionsContainer.appendChild(optionDiv);
+        });
     }
 
-    // Ejecutar carga inicial de la galería de avatares
-    generateAvatarCollection();
-
-    // Evento para re-barajar las opciones
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', generateAvatarCollection);
-    }
+    // Inicializar la carga de elementos dentro de la caja oculta
+    renderAvatarGrid();
 }

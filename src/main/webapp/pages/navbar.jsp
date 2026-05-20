@@ -5,13 +5,18 @@
     Usuario un = (Usuario) session.getAttribute("usuarioLogueado");
     String nombreUsuario = "";
     String inicialUsuario = "";
+    String avatarUsuario = "";
     if (un != null && un.getNombreUs() != null) {
         nombreUsuario = un.getNombreUs().trim();
         if (!nombreUsuario.isEmpty()) {
             inicialUsuario = nombreUsuario.substring(0, 1).toUpperCase();
         }
     }
+    if (un != null && un.getAvatarUrl() != null) {
+        avatarUsuario = un.getAvatarUrl().trim();
+    }
 %>
+
 <nav class="navbar navbar-expand-lg custom-navbar py-3">
     <div class="container-fluid px-4 px-lg-5">
         <a class="navbar-brand d-flex align-items-center gap-2" href="<%=request.getContextPath()%>/index.jsp">
@@ -59,13 +64,35 @@
                 <% } else { %>
                 <li class="nav-item dropdown" id="user-menu">
                     <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 user-menu-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                        <%-- Carga de Avatar o Inicial --%>
+                        <% if (!avatarUsuario.isEmpty()) { %>
+                        <img src="<%= avatarUsuario %>" alt="Avatar" class="rounded-circle" style="width: 34px; height: 34px; object-fit: contain; background-color: rgba(255,255,255,0.05); border: 1px solid var(--accent-color);">
+                        <% } else { %>
                         <span class="user-avatar" aria-hidden="true"><%= inicialUsuario.isEmpty() ? "?" : inicialUsuario %></span>
+                        <% } %>
+
                         <span class="fw-semibold user-name"><%= nombreUsuario %></span>
                     </a>
+
                     <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/dashboard">Gestionar cuenta</a></li>
+                        <%-- REDIRECCIÓN INTELIGENTE --%>
+                        <% if (un.getIdPer() == 1) { %>
+                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/dashboard">
+                            <i class="fas fa-chart-line me-2"></i> Panel de Control
+                        </a></li>
+                        <% } else { %>
+                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/pages/profile.jsp">
+                            <i class="fas fa-user-cog me-2"></i> Mi Perfil
+                        </a></li>
+                        <% } %>
+
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="<%=request.getContextPath()%>/LogoutServlet">Cerrar Sesión</a></li>
+
+                        <%-- BOTÓN DE CERRAR SESIÓN SEGURO --%>
+                        <li><a class="dropdown-item text-danger fw-bold" href="<%=request.getContextPath()%>/LogoutServlet">
+                            <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                        </a></li>
                     </ul>
                 </li>
 

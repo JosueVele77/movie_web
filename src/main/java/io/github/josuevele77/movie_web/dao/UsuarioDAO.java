@@ -29,6 +29,7 @@ public class UsuarioDAO {
                     u.setCedulaUs(rs.getString("cedula_us"));
                     u.setCorreoUs(rs.getString("correo_us"));
                     u.setClaveUs(rs.getString("clave_us"));
+                    u.setAvatarUrl(rs.getString("avatar_url"));
                     return u;
                 }
             }
@@ -40,7 +41,7 @@ public class UsuarioDAO {
 
     // Método para registrar un nuevo Cliente con su Estado Civil
     public boolean registrar(Usuario u) {
-        String sql = "INSERT INTO public.tb_usuario (id_per, id_est, nombre_us, cedula_us, correo_us, clave_us) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO public.tb_usuario (id_per, id_est, nombre_us, cedula_us, correo_us, clave_us, avatar_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -50,6 +51,7 @@ public class UsuarioDAO {
             ps.setString(4, u.getCedulaUs());
             ps.setString(5, u.getCorreoUs());
             ps.setString(6, u.getClaveUs());
+            ps.setString(7, u.getAvatarUrl());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -67,6 +69,25 @@ public class UsuarioDAO {
             if (rs.next()) return rs.getInt(1);
         } catch (Exception e) { e.printStackTrace(); }
         return 0;
+    }
+
+    // Método para actualizar los datos personales del perfil del cliente
+    public boolean actualizarPerfil(Usuario u) {
+        String sql = "UPDATE public.tb_usuario SET nombre_us = ?, cedula_us = ?, correo_us = ?, clave_us = ? WHERE id_us = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, u.getNombreUs());
+            ps.setString(2, u.getCedulaUs());
+            ps.setString(3, u.getCorreoUs());
+            ps.setString(4, u.getClaveUs());
+            ps.setInt(5, u.getIdUs());
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

@@ -1,6 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
+<% if ("credenciales".equals(request.getParameter("error"))) { %>
+<div class="alert alert-danger small py-2 text-center" role="alert">
+    <i class="fas fa-exclamation-circle me-1"></i> Correo o contraseña incorrectos. Inténtalo de nuevo.
+</div>
+<% } else if ("1".equals(request.getParameter("error"))) { %>
+<div class="alert alert-warning small py-2 text-center" role="alert">
+    <i class="fas fa-exclamation-triangle me-1"></i> Por favor, llena todos los campos.
+</div>
+<% } %>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

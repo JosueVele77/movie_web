@@ -57,10 +57,8 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect(contextPath + "/pages/login.jsp?error=RolInvalido");
             }
         } else {
-            // ¡PRUEBA DE DIAGNÓSTICO!: Si llega aquí, imprimimos un mensaje directo en el navegador
-            response.setContentType("text/html;charset=UTF-8");
-            response.getWriter().println("<h1>El usuario retornó NULL desde la base de datos.</h1>");
-            response.getWriter().println("<p>Revisa las credenciales en tu formulario o la conexión en tu BD.</p>");
+            // Si el usuario es nulo (correo o contraseña incorrectos), redirigimos al login con un error
+            response.sendRedirect(request.getContextPath() + "/pages/login.jsp?error=credenciales");
         }
     }
 }
