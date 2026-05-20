@@ -1416,3 +1416,198 @@ body.page-leaving::after {
 [data-bs-theme="light"] .user-dropdown-menu .dropdown-divider {
     border-color: rgba(0, 0, 0, 0.08);
 }
+
+/* Avatar selector en registro */
+.signup-avatar-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.signup-avatar-preview-wrapper {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    background: #f5f6f9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-avatar-preview {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.signup-avatar-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.avatar-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: transparent;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.avatar-option img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-option:hover {
+    border-color: rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.avatar-option.is-selected {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(241, 179, 78, 0.2);
+}
+
+.cedula-province {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Estados de validacion para inputs */
+.input-group.field-valid {
+    border-bottom: 2px solid #198754 !important;
+}
+
+.input-group.field-invalid {
+    border-bottom: 2px solid #dc3545 !important;
+}
+
+.input-group.field-valid .form-control,
+.input-group.field-valid .input-group-text,
+.input-group.field-valid .form-select {
+    border-bottom-color: #198754 !important;
+}
+
+.input-group.field-invalid .form-control,
+.input-group.field-invalid .input-group-text,
+.input-group.field-invalid .form-select {
+    border-bottom-color: #dc3545 !important;
+}
+
+.input-group.field-valid .input-group-text i {
+    color: #198754 !important;
+}
+
+.input-group.field-invalid .input-group-text i {
+    color: #dc3545 !important;
+}
+
+/* =========================================
+   SELECTOR DE AVATARES INTERACTIVO 3D
+   ========================================= */
+.avatar-main-container {
+    width: 125px;
+    height: 125px;
+    margin: 0 auto;
+}
+
+.avatar-main-preview {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
+    border: 4px solid var(--accent-color);
+    box-shadow: 0 8px 25px rgba(241, 179, 78, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.avatar-main-preview img {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+}
+
+/* El círculo verde flotante con el visto bueno */
+.avatar-checked-badge {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    background-color: #198754; /* Verde de validación */
+    color: #ffffff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    border: 3px solid var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    z-index: 5;
+    animation: panelFadeInUp 0.4s ease-out;
+}
+
+/* Contenedor horizontal de las opciones inferiores */
+.avatar-options-container {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none; /* Firefox */
+}
+
+.avatar-options-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* Estilo individual para cada miniatura circular de la lista */
+.avatar-option {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+[data-bs-theme="light"] .avatar-option {
+    background-color: rgba(0, 0, 0, 0.04);
+    border: 2px solid rgba(0, 0, 0, 0.12);
+}
+
+.avatar-option:hover {
+    transform: translateY(-3px) scale(1.08);
+    border-color: rgba(241, 179, 78, 0.6);
+}
+
+/* Estado Activo cuando la miniatura está seleccionada */
+.avatar-option.active {
+    border-color: var(--accent-color);
+    background-color: rgba(241, 179, 78, 0.1);
+    box-shadow: 0 0 12px rgba(241, 179, 78, 0.35);
+    transform: scale(1.1);
+}
+
+.avatar-option img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+}

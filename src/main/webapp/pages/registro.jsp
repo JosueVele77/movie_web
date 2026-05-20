@@ -41,6 +41,30 @@
                     <p class="text-muted small">Ingresa tus datos para registrarte</p>
                 </div>
 
+                <div class="mb-4 text-center">
+                    <p class="text-muted small mb-3 fw-bold text-uppercase" style="letter-spacing: 1px;">Selecciona tu Avatar</p>
+
+                    <div class="avatar-main-container position-relative mb-3">
+                        <div class="avatar-main-preview shadow-lg">
+                            <img src="" alt="Avatar Seleccionado" id="avatarImage">
+                        </div>
+                        <div class="avatar-checked-badge" id="avatarBadge">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="avatar-options-wrapper">
+                        <div class="avatar-options-container d-flex justify-content-center gap-3 py-2" id="avatarOptionsContainer">
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-2 px-3 style-btn" id="refreshAvatarBtn">
+                            <i class="fas fa-random me-1"></i> Cambiar opciones
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="avatarUrl" id="avatarUrl">
+                </div>
+
                 <%-- Alerta de error si el registro falla (Opcional, manejado por el Servlet) --%>
                 <% if(request.getParameter("error") != null) { %>
                 <div class="alert alert-danger py-2 small" role="alert">
@@ -49,6 +73,8 @@
                 <% } %>
 
                 <form id="signup-form" action="${pageContext.request.contextPath}/RegistroServlet" method="POST">
+
+                    <input type="hidden" id="avatarUrl" name="avatarUrl">
 
                     <div class="mb-4">
                         <label for="signupName" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Nombre completo</label>
@@ -63,6 +89,7 @@
                         <div class="input-group border-bottom border-2">
                             <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-card-heading text-muted fs-5"></i></span>
                             <input type="text" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupCedula" name="cedula" placeholder="Tu número de cédula" required>
+                            <span id="cedulaProvince" class="input-group-text bg-transparent border-0 py-2 text-muted small cedula-province">Provincia</span>
                         </div>
                     </div>
 
@@ -118,6 +145,15 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/script.js"></script>
+<script type="module">
+    import { initAvatarGenerator } from '../js/utils/avatar.js';
+    import { initSignupValidation } from '../js/utils/signup.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initAvatarGenerator();
+        initSignupValidation();
+    });
+</script>
 <script>
     // Script para alternar tema claro/oscuro
     document.addEventListener('DOMContentLoaded', function() {

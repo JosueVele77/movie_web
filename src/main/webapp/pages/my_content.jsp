@@ -1,52 +1,247 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
+<%
+    // Verificación de seguridad: Validar que el usuario esté logueado
+    Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
+    if (userSession == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineStore - Mi Contenido</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles.css">
+    <title>Mi Contenido - CineStore</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
+
+    <style>
+        /* Estilos específicos para la cabecera del cliente */
+        .client-hero {
+            position: relative;
+            padding: 120px 0 60px;
+            background: linear-gradient(to bottom, rgba(20, 20, 24, 0.4), var(--bg-color));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+
+        [data-bs-theme="light"] .client-hero {
+            background: linear-gradient(to bottom, rgba(231, 233, 239, 0.4), var(--bg-color));
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .user-profile-badge {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, var(--accent-color), #ff8c00);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 800;
+            box-shadow: 0 15px 35px rgba(241, 179, 78, 0.4);
+            border: 4px solid var(--bg-color);
+            position: relative;
+            z-index: 2;
+        }
+
+        .client-stats {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 15px 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        [data-bs-theme="light"] .client-stats {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        /* Estilo para la barra de progreso en películas alquiladas */
+        .movie-progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .movie-progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+    </style>
 </head>
-<body>
+<body class="catalog-page">
+
 <div id="stars-container"></div>
 <div class="planet"></div>
-<div class="container py-5">
-    <div class="d-flex justify-content-start mb-3">
-        <button class="btn btn-outline-light" data-action="go-back" data-fallback="../index.jsp">
-            <i class="bi bi-arrow-left me-2"></i>Volver
+
+<jsp:include page="navbar.jsp" />
+
+<header class="client-hero">
+    <div class="container px-4 px-lg-5">
+        <div class="row align-items-center gy-4">
+            <div class="col-md-7 d-flex align-items-center gap-4">
+                <div class="user-profile-badge">
+                    <%= userSession.getNombreUs().substring(0, 1).toUpperCase() %>
+                </div>
+                <div>
+                    <h1 class="display-5 fw-bold mb-1">Hola, <%= userSession.getNombreUs() %></h1>
+                    <p class="text-muted mb-2 fs-5"><i class="bi bi-envelope-fill me-2"></i><%= userSession.getCorreoUs() %></p>
+                    <span class="badge bg-secondary px-3 py-2 rounded-pill fw-normal">
+                            <i class="bi bi-star-fill text-warning me-1"></i> Cuenta Activa
+                        </span>
+                </div>
+            </div>
+            <div class="col-md-5 d-flex justify-content-md-end">
+                <div class="client-stats d-flex gap-4 text-center">
+                    <div>
+                        <div class="stat-value">12</div>
+                        <div class="text-muted small text-uppercase fw-bold mt-1">Compradas</div>
+                    </div>
+                    <div class="vr bg-secondary opacity-25"></div>
+                    <div>
+                        <div class="stat-value">3</div>
+                        <div class="text-muted small text-uppercase fw-bold mt-1">Alquiladas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container px-4 px-lg-5 my-5">
+
+    <div class="d-flex gap-3 mb-5 catalog-tabs overflow-auto pb-2 border-bottom border-secondary border-opacity-25">
+        <button class="streaming-tab active" onclick="location.href='my_content.jsp'">
+            <i class="bi bi-play-circle-fill me-2"></i> Mis Películas
+        </button>
+        <button class="streaming-tab" onclick="location.href='favorites.jsp'">
+            <i class="bi bi-heart-fill me-2"></i> Mi Lista
+        </button>
+        <button class="streaming-tab" onclick="location.href='dashboard.jsp'">
+            <i class="bi bi-person-badge-fill me-2"></i> Ajustes de Cuenta
         </button>
     </div>
-    <h1 class="mb-4">Mi Contenido Comprado</h1>
-    <div id="purchased-grid" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4"></div>
-</div>
-<script src="../js/script.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const purchased = JSON.parse(localStorage.getItem('purchased')) || [];
-        const grid = document.getElementById('purchased-grid');
-        if (grid) {
-            if (purchased.length === 0) {
-                grid.innerHTML = '<p>No has comprado ninguna película todavía.</p>';
-                return;
-            }
 
-            purchased.forEach(movie => {
-                const col = document.createElement('div');
-                col.className = 'col';
-                const posterSrc = movie.posterPath ? `${IMG_URL}${movie.posterPath}` : FALLBACK_POSTER_URL;
-                col.innerHTML = `
-                        <div class="movie-card h-100 d-flex flex-column" style="cursor: pointer;" onclick="openMovieDetail(${movie.id})">
-                            <img src="${posterSrc}" alt="${movie.title}" onerror="this.onerror=null;this.src='${FALLBACK_POSTER_URL}'">
-                            <div class="movie-info d-flex flex-column flex-grow-1">
-                                <h3 class="movie-title">${movie.title}</h3>
-                            </div>
+    <h4 class="section-title fw-bold mb-4 d-flex align-items-center gap-2">
+        <i class="bi bi-clock-history text-warning"></i> Continuar Viendo
+    </h4>
+
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="movie-card catalog-panel">
+                <div class="position-relative">
+                    <img src="<%=request.getContextPath()%>/img/fallback-poster.svg" alt="Película Alquilada">
+                    <div class="position-absolute top-0 end-0 p-2 m-1">
+                            <span class="badge bg-dark border border-warning text-warning rounded-pill shadow-sm">
+                                <i class="bi bi-hourglass-split me-1"></i> 24h restantes
+                            </span>
+                    </div>
+                </div>
+                <div class="movie-info">
+                    <h5 class="movie-title">Dune: Parte Dos</h5>
+                    <p class="movie-meta mb-1">Alquilada el 18 de Mayo</p>
+
+                    <div class="movie-progress-bar">
+                        <div class="movie-progress-fill" style="width: 65%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <button class="btn btn-card-comprar w-100"><i class="bi bi-play-fill me-1 fs-5"></i> Reanudar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="section-title fw-bold mb-4 d-flex align-items-center gap-2">
+        <i class="bi bi-collection-play-fill" style="color: var(--accent-color);"></i> Mi Biblioteca
+    </h4>
+
+    <div class="row g-4">
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="movie-card catalog-panel">
+                <div class="position-relative">
+                    <img src="<%=request.getContextPath()%>/img/fallback-poster.svg" alt="Película Comprada">
+                    <div class="position-absolute top-0 end-0 p-2 m-1">
+                            <span class="badge bg-success rounded-pill shadow-sm">
+                                <i class="bi bi-check-circle-fill me-1"></i> Comprada
+                            </span>
+                    </div>
+                </div>
+                <div class="movie-info">
+                    <h5 class="movie-title">Interestelar</h5>
+                    <div class="movie-rating mb-2">
+                        <div class="rating-stars">
+                            <div class="rating-stars-fill" style="width: 100%;"></div>
                         </div>
-                    `;
-                grid.appendChild(col);
-            });
-        }
-    });
-</script>
+                        <span class="movie-rating-text">Ciencia Ficción</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <button class="btn btn-card-comprar w-100"><i class="bi bi-play-fill me-1 fs-5"></i> Reproducir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="movie-card catalog-panel" style="animation-delay: 0.1s;">
+                <div class="position-relative">
+                    <img src="<%=request.getContextPath()%>/img/fallback-poster.svg" alt="Película Comprada">
+                    <div class="position-absolute top-0 end-0 p-2 m-1">
+                            <span class="badge bg-success rounded-pill shadow-sm">
+                                <i class="bi bi-check-circle-fill me-1"></i> Comprada
+                            </span>
+                    </div>
+                </div>
+                <div class="movie-info">
+                    <h5 class="movie-title">Oppenheimer</h5>
+                    <div class="movie-rating mb-2">
+                        <div class="rating-stars">
+                            <div class="rating-stars-fill" style="width: 100%;"></div>
+                        </div>
+                        <span class="movie-rating-text">Drama</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <button class="btn btn-card-comprar w-100"><i class="bi bi-play-fill me-1 fs-5"></i> Reproducir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3 d-flex align-items-stretch">
+            <div class="movie-card catalog-panel w-100 d-flex flex-column align-items-center justify-content-center text-center p-4" style="background: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.1); cursor: pointer;" onclick="location.href='../index.jsp'" style="animation-delay: 0.2s;">
+                <div class="rounded-circle p-3 mb-3" style="background: rgba(241, 179, 78, 0.1);">
+                    <i class="bi bi-plus-lg fs-1" style="color: var(--accent-color);"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Descubrir más</h5>
+                <p class="text-muted small mb-0">Explora la tienda para añadir películas a tu colección.</p>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<jsp:include page="footer.jsp" />
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/script.js"></script>
 </body>
 </html>

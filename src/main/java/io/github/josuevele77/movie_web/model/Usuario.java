@@ -8,6 +8,8 @@ public class Usuario {
     private String cedulaUs;
     private String correoUs;
     private String claveUs;
+    private String avatarUrl;
+
 
     // Constructores, Getters y Setters
     public Usuario() {}
@@ -26,4 +28,9 @@ public class Usuario {
     public void setCorreoUs(String correoUs) { this.correoUs = correoUs; }
     public String getClaveUs() { return claveUs; }
     public void setClaveUs(String claveUs) { this.claveUs = claveUs; }
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
 }
