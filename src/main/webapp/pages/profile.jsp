@@ -167,6 +167,45 @@
               </div>
             </div>
 
+            <hr class="my-4 border-secondary opacity-25">
+            <h5 class="fw-bold mb-3 text-warning">
+              <i class="bi bi-bag-check-fill me-2"></i>Compras recientes
+            </h5>
+
+            <div class="list-group mb-4 shadow-sm">
+
+              <div class="list-group-item bg-transparent border-secondary border-opacity-25 text-white d-flex justify-content-between align-items-center p-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="bg-dark rounded p-2 border border-secondary border-opacity-50 shadow-sm">
+                    <i class="fas fa-film text-info fs-4"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-semibold">Avengers: Endgame</h6>
+                    <small class="text-muted">Fecha de compra: 18/05/2026</small>
+                  </div>
+                </div>
+                <span class="badge bg-success rounded-pill px-3 py-2 border border-success border-opacity-50">$ 14.99</span>
+              </div>
+
+              <div class="list-group-item bg-transparent border-secondary border-opacity-25 text-white d-flex justify-content-between align-items-center p-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="bg-dark rounded p-2 border border-secondary border-opacity-50 shadow-sm">
+                    <i class="fas fa-film text-info fs-4"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-semibold">Spider-Man: No Way Home</h6>
+                    <small class="text-muted">Fecha de compra: 12/05/2026</small>
+                  </div>
+                </div>
+                <span class="badge bg-success rounded-pill px-3 py-2 border border-success border-opacity-50">$ 12.50</span>
+              </div>
+
+            </div>
+            <div class="d-flex justify-content-end gap-3 mt-2">
+              <button type="button" class="btn btn-outline-secondary rounded-pill px-4" onclick="location.href='my_content.jsp'">Cancelar</button>
+              <button type="submit" class="btn btn-login rounded-pill px-4 fw-bold text-white">Guardar Cambios</button>
+            </div>
+
           </div>
         </form>
       </div>
