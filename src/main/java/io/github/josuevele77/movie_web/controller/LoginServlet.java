@@ -48,7 +48,7 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect(contextPath + "/dashboard");
                     break;
                 case 2:
-                    response.sendRedirect(contextPath + "/pages/editar_productos.jsp");
+                    response.sendRedirect(contextPath + "/pages/vendedor.jsp");
                     break;
                 case 3:
                     response.sendRedirect(contextPath + "/index.jsp");

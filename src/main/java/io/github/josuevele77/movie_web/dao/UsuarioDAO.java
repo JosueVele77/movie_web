@@ -118,4 +118,53 @@ public class UsuarioDAO {
         return usuarios;
     }
 
+    // Método para buscar usuario por correo
+    public Usuario buscarPorCorreo(String correo) {
+        String sql = "SELECT * FROM public.tb_usuario WHERE TRIM(correo_us) = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, correo.trim());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Usuario u = new Usuario();
+                    u.setIdUs(rs.getInt("id_us"));
+                    u.setIdPer(rs.getInt("id_per"));
+                    u.setIdEst(rs.getInt("id_est"));
+                    u.setNombreUs(rs.getString("nombre_us"));
+                    u.setCedulaUs(rs.getString("cedula_us"));
+                    u.setCorreoUs(rs.getString("correo_us"));
+                    u.setClaveUs(rs.getString("clave_us"));
+                    u.setAvatarUrl(rs.getString("avatar_url"));
+                    return u;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Método para actualizar el rol de un usuario
+    public boolean actualizarRol(int usuarioId, int nuevoRol) {
+        // Validar que el rol sea válido (1=Admin, 2=Empleado, 3=Cliente)
+        if (nuevoRol < 1 || nuevoRol > 3) {
+            return false;
+        }
+
+        String sql = "UPDATE public.tb_usuario SET id_per = ? WHERE id_us = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, nuevoRol);
+            ps.setInt(2, usuarioId);
+
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

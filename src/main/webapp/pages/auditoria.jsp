@@ -4,8 +4,8 @@
 <%@ page import="java.util.Map" %>
 <%
     Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
-    if (userSession == null) {
-        response.sendRedirect("login.jsp");
+    if (userSession == null || userSession.getIdPer() != 1) {
+        response.sendRedirect(request.getContextPath() + "/pages/login.jsp?error=unauthorized");
         return;
     }
     List<Map<String, Object>> registroAuditoria = (List<Map<String, Object>>) request.getAttribute("registroAuditoria");
@@ -317,7 +317,7 @@
                                 </td>
                             </tr>
                             <%   }
-                            } %>
+                            %>
                             </tbody>
                         </table>
                     </div>

@@ -69,4 +69,47 @@ public class ProductoDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return lista;
     }
+
+    // Devuelve la lista de todas las películas activas (para vendedores)
+    public java.util.List<io.github.josuevele77.movie_web.model.Producto> listarTodos() {
+        java.util.List<io.github.josuevele77.movie_web.model.Producto> lista = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM public.tb_producto WHERE estado_pr = TRUE ORDER BY id_pr DESC";
+        try (Connection con = io.github.josuevele77.movie_web.config.DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                io.github.josuevele77.movie_web.model.Producto p = new io.github.josuevele77.movie_web.model.Producto();
+                p.setIdPr(rs.getInt("id_pr"));
+                p.setIdCat(rs.getInt("id_cat"));
+                p.setNombrePr(rs.getString("nombre_pr"));
+                p.setCantidadPr(rs.getInt("cantidad_pr"));
+                p.setPrecioPr(rs.getDouble("precio_pr"));
+                p.setEstadoPr(rs.getBoolean("estado_pr"));
+                lista.add(p);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return lista;
+    }
+
+    // Método para que vendedor oculte un producto
+    public boolean ocultarProducto(int idPr) {
+        String sql = "UPDATE public.tb_producto SET estado_pr = FALSE WHERE id_pr = ?";
+        try (Connection con = io.github.josuevele77.movie_web.config.DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPr);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); return false; }
+    }
+
+    // Método para actualizar precio y descuento
+    public boolean actualizarPrecio(int idPr, double nuevoPrecio, double descuento) {
+        String sql = "UPDATE public.tb_producto SET precio_pr = ? WHERE id_pr = ?";
+        try (Connection con = io.github.josuevele77.movie_web.config.DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            double precioFinal = nuevoPrecio - (nuevoPrecio * descuento / 100);
+            ps.setDouble(1, precioFinal);
+            ps.setInt(2, idPr);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); return false; }
+    }
 }

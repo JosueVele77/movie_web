@@ -21,19 +21,24 @@ public class AuditoriaServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
-        if (session != null) {
-            Usuario user = (Usuario) session.getAttribute("usuarioLogueado");
-            if (user != null && user.getIdPer() == 1) { // 1 for Admin
-                List<Map<String, Object>> registroAuditoria = obtenerRegistroAuditoria();
+        try {
+            if (session != null) {
+                Usuario user = (Usuario) session.getAttribute("usuarioLogueado");
+                if (user != null && user.getIdPer() == 1) { // 1 for Admin
+                    List<Map<String, Object>> registroAuditoria = obtenerRegistroAuditoria();
 
-                request.setAttribute("registroAuditoria", registroAuditoria);
+                    request.setAttribute("registroAuditoria", registroAuditoria);
 
-                request.getRequestDispatcher("/pages/auditoria.jsp").forward(request, response);
+                    request.getRequestDispatcher("/pages/auditoria.jsp").forward(request, response);
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/pages/login.jsp?error=unauthorized");
+                }
             } else {
-                response.sendRedirect("pages/login.jsp?error=unauthorized");
+                response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
             }
-        } else {
-            response.sendRedirect("pages/login.jsp");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al procesar la solicitud: " + e.getMessage());
         }
     }
 

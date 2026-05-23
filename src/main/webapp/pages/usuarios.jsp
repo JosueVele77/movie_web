@@ -4,13 +4,15 @@
 <%
     Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
     if (userSession == null) {
-        response.sendRedirect("login.jsp");
+        response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
         return;
     }
     List<Usuario> usuarios = (List<Usuario>) request.getAttribute("usuarios");
     if (usuarios == null) {
         usuarios = new java.util.ArrayList<>();
     }
+    // Solo administradores pueden cambiar roles
+    boolean esAdmin = userSession.getIdPer() == 1;
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -310,9 +312,22 @@
                                 </span>
                             </td>
                             <td class="text-end pe-3">
-                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" data-bs-toggle="tooltip" title="Ver Detalles">
-                                    <i class="bi bi-eye"></i> Ver
-                                </button>
+                                <% if (esAdmin) { %>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold dropdown-toggle" type="button" id="dropdownAcciones<%= u.getIdUs() %>" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-gear"></i> Acciones
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAcciones<%= u.getIdUs() %>">
+                                            <li><a class="dropdown-item" href="#" onclick="abrirModalCambioRol(<%= u.getIdUs() %>, '<%= u.getNombreUs() %>', 1)"><i class="bi bi-shield-check me-2"></i> Administrador</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="abrirModalCambioRol(<%= u.getIdUs() %>, '<%= u.getNombreUs() %>', 2)"><i class="bi bi-briefcase me-2"></i> Vendedor</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="abrirModalCambioRol(<%= u.getIdUs() %>, '<%= u.getNombreUs() %>', 3)"><i class="bi bi-person me-2"></i> Cliente</a></li>
+                                        </ul>
+                                    </div>
+                                <% } else { %>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold disabled" disabled>
+                                        <i class="bi bi-eye me-1"></i> Ver
+                                    </button>
+                                <% } %>
                             </td>
                         </tr>
                         <%   }
@@ -326,12 +341,225 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Modal para cambio de rol con verificación de contraseña -->
+<div class="modal fade" id="modalCambioRol" tabindex="-1" aria-labelledby="modalCambioRolLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title" id="modalCambioRolLabel">
+                    <i class="bi bi-shield-check me-2"></i> Verificación de Seguridad
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <div>
+                        <strong>Cambio de Rol</strong><br>
+                        <small>Estás a punto de cambiar el rol de <strong id="userNameDisplay"></strong>.</small>
+                    </div>
+                </div>
+
+                <form id="formCambioRol">
+                    <input type="hidden" id="usuarioIdInput" name="usuarioId">
+                    <input type="hidden" id="nuevoRolInput" name="nuevoRol">
+                    <div class="mb-4">
+                        <label for="passwordVerificacion" class="form-label fw-bold">
+                            <i class="bi bi-lock-fill me-2"></i>Confirma tu contraseña
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control form-control-lg border-2" id="passwordVerificacion" placeholder="Ingresa tu contraseña" required onkeypress="if(event.key === 'Enter') confirmarCambioRol()">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted d-block mt-2">Por razones de seguridad, debes confirmar tu contraseña.</small>
+                    </div>
+
+                    <div id="mensajeExito" class="alert alert-success d-none align-items-center" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <div id="textoExito"></div>
+                    </div>
+
+                    <div id="mensajeError" class="alert alert-danger d-none align-items-center" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        <div id="textoError"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light border-top-0 p-3">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" onclick="confirmarCambioRol()">
+                    <i class="bi bi-check2-circle me-1"></i> Cambiar Rol
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Inicializar tooltips de Bootstrap
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+
+    // Variables globales para el modal
+    let modalCambioRol = new bootstrap.Modal(document.getElementById('modalCambioRol'), {
+        keyboard: false
+    });
+
+    // Función para abrir el modal de cambio de rol
+    function abrirModalCambioRol(usuarioId, nombreUsuario, nuevoRol) {
+        document.getElementById('usuarioIdInput').value = usuarioId;
+        document.getElementById('nuevoRolInput').value = nuevoRol;
+        document.getElementById('userNameDisplay').textContent = nombreUsuario;
+        document.getElementById('passwordVerificacion').value = '';
+        document.getElementById('passwordVerificacion').type = 'password';
+        document.getElementById('toggleIcon').classList.remove('bi-eye-slash');
+        document.getElementById('toggleIcon').classList.add('bi-eye');
+        limpiarMensajes();
+        modalCambioRol.show();
+        setTimeout(() => document.getElementById('passwordVerificacion').focus(), 300);
+    }
+
+    // Función para mostrar/ocultar contraseña
+    function togglePasswordVisibility() {
+        const input = document.getElementById('passwordVerificacion');
+        const icon = document.getElementById('toggleIcon');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    // Función para confirmar el cambio de rol
+    function confirmarCambioRol() {
+        const usuarioId = document.getElementById('usuarioIdInput').value;
+        const nuevoRol = document.getElementById('nuevoRolInput').value;
+        const password = document.getElementById('passwordVerificacion').value;
+
+        if (!password || password.trim() === '') {
+            mostrarError('Por favor ingresa tu contraseña');
+            return;
+        }
+
+        // Deshabilitar botón mientras se procesa
+        const btnConfirmar = document.querySelector('button[onclick="confirmarCambioRol()"]');
+        const btnCancelar = document.querySelector('.modal-footer .btn-secondary');
+        btnConfirmar.disabled = true;
+        btnCancelar.disabled = true;
+        btnConfirmar.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Procesando...';
+
+        // Enviar al servidor para verificar contraseña y cambiar rol
+        fetch('<%= request.getContextPath() %>/cambiarRol', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'usuarioId=' + usuarioId + '&nuevoRol=' + nuevoRol + '&password=' + encodeURIComponent(password)
+        })
+        .then(response => response.json())
+        .then(data => {
+            btnConfirmar.disabled = false;
+            btnCancelar.disabled = false;
+            btnConfirmar.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Cambiar Rol';
+
+            if (data.success) {
+                // Mostrar mensaje de éxito
+                mostrarExito('¡Rol actualizado exitosamente!');
+                // Actualizar la fila en la tabla sin recargar
+                actualizarRolEnTabla(usuarioId, nuevoRol);
+                // Cerrar modal después de 1.5 segundos
+                setTimeout(() => {
+                    modalCambioRol.hide();
+                    limpiarMensajes();
+                }, 1500);
+            } else {
+                mostrarError(data.message || 'Error al cambiar el rol. Verifica tu contraseña.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btnConfirmar.disabled = false;
+            btnCancelar.disabled = false;
+            btnConfirmar.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Cambiar Rol';
+            mostrarError('Error de conexión. Por favor intenta de nuevo.');
+        });
+    }
+
+    // Función para actualizar el rol en la tabla sin recargar
+    function actualizarRolEnTabla(usuarioId, nuevoRol) {
+        let rolTexto = 'Cliente';
+        let rolClase = 'bg-secondary';
+        let rolIcono = 'bi-person';
+
+        if (nuevoRol == 1) {
+            rolTexto = 'Administrador';
+            rolClase = 'bg-danger';
+            rolIcono = 'bi-shield-check';
+        } else if (nuevoRol == 2) {
+            rolTexto = 'Empleado';
+            rolClase = 'bg-primary';
+            rolIcono = 'bi-briefcase';
+        }
+
+        // Buscar todos los botones dropdown y encontrar el que corresponde a este usuario
+        const botones = document.querySelectorAll('button[id^="dropdownAcciones"]');
+        botones.forEach(boton => {
+            if (boton.id === 'dropdownAcciones' + usuarioId) {
+                // Encontramos el botón para este usuario, ahora buscamos su fila
+                const fila = boton.closest('tr');
+                if (fila) {
+                    // Buscar la cuarta celda (columna de Rol)
+                    const celdas = fila.querySelectorAll('td');
+                    if (celdas.length >= 4) {
+                        // La cuarta celda (índice 3) contiene el rol
+                        celdas[3].innerHTML = '<span class="badge ' + rolClase + '"><i class="bi ' + rolIcono + ' me-1"></i> ' + rolTexto + '</span>';
+                    }
+                }
+            }
+        });
+    }
+
+    function mostrarError(mensaje) {
+        const errorDiv = document.getElementById('mensajeError');
+        const textoError = document.getElementById('textoError');
+        textoError.textContent = mensaje;
+        errorDiv.classList.remove('d-none');
+        document.getElementById('mensajeExito').classList.add('d-none');
+    }
+
+    function mostrarExito(mensaje) {
+        const exitoDiv = document.getElementById('mensajeExito');
+        const textoExito = document.getElementById('textoExito');
+        textoExito.textContent = mensaje;
+        exitoDiv.classList.remove('d-none');
+        document.getElementById('mensajeError').classList.add('d-none');
+    }
+
+    function limpiarMensajes() {
+        document.getElementById('mensajeError').classList.add('d-none');
+        document.getElementById('mensajeExito').classList.add('d-none');
+    }
+
+    // Permitir Enter en el campo de contraseña
+    document.addEventListener('shown.bs.modal', function(e) {
+        if (e.target.id === 'modalCambioRol') {
+            const passwordInput = document.getElementById('passwordVerificacion');
+            if (passwordInput) {
+                passwordInput.focus();
+            }
+        }
+    });
+
 </script>
 </body>
 </html>

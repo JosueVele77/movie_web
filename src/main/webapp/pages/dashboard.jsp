@@ -9,12 +9,20 @@
         response.sendRedirect("login.jsp");
         return;
     }
+
+    // Solo administradores pueden acceder a este apartado
+    if (userSession.getIdPer() != 1) {
+        response.sendRedirect(request.getContextPath() + "/pages/login.jsp?error=unauthorized");
+        return;
+    }
+
     int totalProductos = (Integer) request.getAttribute("totalP");
     int productosOcultos = (Integer) request.getAttribute("ocultosP");
     int totalClientes = (Integer) request.getAttribute("totalC");
     List<Producto> ocultos = (List<Producto>) request.getAttribute("listaOcultos");
     List<HistorialCompra> historialCompras = (List<HistorialCompra>) request.getAttribute("historialCompras");
     double totalVentas = (Double) request.getAttribute("totalVentas") != null ? (Double) request.getAttribute("totalVentas") : 0.0;
+
     if (historialCompras == null) {
         historialCompras = new java.util.ArrayList<>();
     }
@@ -121,7 +129,7 @@
                 <div class="d-flex align-items-center gap-3">
                     <div class="text-end d-none d-sm-block">
                         <span class="fw-bold d-block text-dark"><%= userSession.getCorreoUs() %></span>
-                        <span class="badge bg-dark text-uppercase">Administrador</span>
+                        <span class="badge bg-danger text-uppercase">Administrador</span>
                     </div>
                     <div class="avatar-circle fs-5">
                         <%= userSession.getNombreUs().substring(0, 1).toUpperCase() %>
@@ -137,6 +145,7 @@
             </div>
             <% } %>
 
+            <!-- VISTA PARA ADMINISTRADOR -->
             <div class="row g-4 mb-5">
                 <div class="col-md-4">
                     <div class="card metric-card bg-white text-dark shadow-sm p-3">
@@ -166,48 +175,47 @@
                 </div>
             </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle m-0">
-                        <thead class="table-light text-secondary small text-uppercase">
-                        <tr>
-                            <th class="ps-3">ID</th>
-                            <th>Nombre de Película</th>
-                            <th>Cantidad / Stock</th>
-                            <th>Precio Unitario</th>
-                            <th>Estado</th>
-                            <th class="text-end pe-3">Acción Autorizada</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <% if (ocultos.isEmpty()) { %>
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-emoji-smile fs-3 d-block mb-2 text-secondary"></i>
-                                No hay películas ocultas en este momento. ¡Todo el catálogo está activo!
-                            </td>
-                        </tr>
-                        <% } else {
-                            for (Producto p : ocultos) { %>
-                        <tr>
-                            <td class="fw-bold ps-3">#<%= p.getIdPr() %></td>
-                            <td class="fw-bold text-dark"><%= p.getNombrePr() %></td>
-                            <td><span class="badge bg-secondary"><%= p.getCantidadPr() %> unidades</span></td>
-                            <td class="text-success fw-bold">$<%= String.format("%.2f", p.getPrecioPr()) %></td>
-                            <td><span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle-fill me-1"></i> Oculto por Empleado</span></td>
-                            <td class="text-end pe-3">
-                                <form action="${pageContext.request.contextPath}/ReactivarProductoServlet" method="POST" style="display:inline;">
-                                    <input type="hidden" name="id_pr" value="<%= p.getIdPr() %>">
-                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
-                                        <i class="bi bi-eye me-1"></i> Volver a Activar
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        <%   }
-                        } %>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle m-0">
+                    <thead class="table-light text-secondary small text-uppercase">
+                    <tr>
+                        <th class="ps-3">ID</th>
+                        <th>Nombre de Película</th>
+                        <th>Cantidad / Stock</th>
+                        <th>Precio Unitario</th>
+                        <th>Estado</th>
+                        <th class="text-end pe-3">Acción Autorizada</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% if (ocultos.isEmpty()) { %>
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-emoji-smile fs-3 d-block mb-2 text-secondary"></i>
+                            No hay películas ocultas en este momento. ¡Todo el catálogo está activo!
+                        </td>
+                    </tr>
+                    <% } else {
+                        for (Producto p : ocultos) { %>
+                    <tr>
+                        <td class="fw-bold ps-3">#<%= p.getIdPr() %></td>
+                        <td class="fw-bold text-dark"><%= p.getNombrePr() %></td>
+                        <td><span class="badge bg-secondary"><%= p.getCantidadPr() %> unidades</span></td>
+                        <td class="text-success fw-bold">$<%= String.format("%.2f", p.getPrecioPr()) %></td>
+                        <td><span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle-fill me-1"></i> Oculto por Empleado</span></td>
+                        <td class="text-end pe-3">
+                            <form action="${pageContext.request.contextPath}/ReactivarProductoServlet" method="POST" style="display:inline;">
+                                <input type="hidden" name="id_pr" value="<%= p.getIdPr() %>">
+                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                                    <i class="bi bi-eye me-1"></i> Volver a Activar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <%   }
+                    } %>
+                    </tbody>
+                </table>
             </div>
 
             <div class="card custom-table-card bg-white p-4 mt-4">
