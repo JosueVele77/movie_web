@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Producto" %>
+<%@ page import="io.github.josuevele77.movie_web.model.HistorialCompra" %>
 <%@ page import="java.util.List" %>
 <%
     Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
@@ -12,6 +13,11 @@
     int productosOcultos = (Integer) request.getAttribute("ocultosP");
     int totalClientes = (Integer) request.getAttribute("totalC");
     List<Producto> ocultos = (List<Producto>) request.getAttribute("listaOcultos");
+    List<HistorialCompra> historialCompras = (List<HistorialCompra>) request.getAttribute("historialCompras");
+    double totalVentas = (Double) request.getAttribute("totalVentas") != null ? (Double) request.getAttribute("totalVentas") : 0.0;
+    if (historialCompras == null) {
+        historialCompras = new java.util.ArrayList<>();
+    }
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -83,16 +89,16 @@
             <hr class="text-white-50">
             <ul class="nav flex-column flex-grow-1">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    <a class="nav-link active" href="<%= request.getContextPath() %>/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="editar_productos.jsp"><i class="bi bi-film me-2"></i> Películas</a>
+                    <a class="nav-link" href="<%= request.getContextPath() %>/analisis"><i class="bi bi-bar-chart me-2"></i> Análisis de Ventas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="bi bi-people me-2"></i> Usuarios</a>
+                    <a class="nav-link" href="<%= request.getContextPath() %>/usuarios"><i class="bi bi-people me-2"></i> Usuarios</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="bi bi-journal-text me-2"></i> Auditoría</a>
+                    <a class="nav-link" href="<%= request.getContextPath() %>/auditoria"><i class="bi bi-journal-text me-2"></i> Auditoría</a>
                 </li>
             </ul>
             <hr class="text-white-50">
@@ -149,21 +155,8 @@
                     <div class="card metric-card bg-white text-dark shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="text-muted small text-uppercase fw-bold">Clientes Activos</span>
-                                <h3 class="fw-bold m-0 mt-1"><%= totalClientes %></h3>
-                            </div>
-                            <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success fs-3">
-                                <i class="bi bi-people-fill"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card metric-card bg-white text-dark shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
                                 <span class="text-muted small text-uppercase fw-bold">Películas Ocultas</span>
-                                <h3 class="fw-bold m-0 mt-1 text-danger"><%= productosOcultos %></h3>
+                                <h3 class="fw-bold m-0 mt-1"><%= productosOcultos %></h3>
                             </div>
                             <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-danger fs-3">
                                 <i class="bi bi-eye-slash-fill"></i>
@@ -172,15 +165,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card custom-table-card bg-white p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 class="fw-bold text-dark m-0">Películas Ocultas (Requieren Aprobación)</h4>
-                        <p class="text-muted small m-0">Listado de productos desactivados por el personal de ventas que puedes volver a activar.</p>
-                    </div>
-                    <span class="badge bg-danger rounded-pill px-3 py-2"><%= ocultos.size() %> Pendientes</span>
-                </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle m-0">
@@ -226,6 +210,52 @@
                 </div>
             </div>
 
+            <div class="card custom-table-card bg-white p-4 mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="fw-bold text-dark m-0">Historial de Compras Recientes</h4>
+                        <p class="text-muted small m-0">Registro de las últimas transacciones realizadas por los usuarios.</p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle m-0">
+                        <thead class="table-light text-secondary small text-uppercase">
+                        <tr>
+                            <th class="ps-3">ID Transacción</th>
+                            <th>Usuario</th>
+                            <th>Película Comprada</th>
+                            <th>Fecha</th>
+                            <th class="text-end pe-3">Monto Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% if (historialCompras == null || historialCompras.isEmpty()) { %>
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-receipt fs-3 d-block mb-2 text-secondary"></i>
+                                Aún no se han registrado compras.
+                            </td>
+                        </tr>
+                        <% } else {
+                            for (HistorialCompra hc : historialCompras) { %>
+                        <tr>
+                            <td class="fw-bold ps-3 text-muted">#<%= hc.getIdTransaccion() %></td>
+                            <td class="fw-bold text-dark">
+                                <i class="bi bi-person-circle me-2 text-secondary"></i><%= hc.getNombreUsuario() %>
+                            </td>
+                            <td><%= hc.getNombrePelicula() %></td>
+                            <td><span class="text-muted"><%= hc.getFechaCompra() %></span></td>
+                            <td class="text-end pe-3 text-success fw-bold">
+                                $<%= String.format("%.2f", hc.getTotal()) %>
+                            </td>
+                        </tr>
+                        <%   }
+                        } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

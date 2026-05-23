@@ -33,8 +33,4 @@ public class DatabaseConnection {
         }
         return con; // Retornamos la conexión fresca
     }
-
-    // El método closeConnection() ya no es necesario aquí,
-    // porque el 'try-with-resources' de tus DAOs ya se encarga de cerrarla.
-    // Puedes borrarlo para mantener el código limpio.
 }

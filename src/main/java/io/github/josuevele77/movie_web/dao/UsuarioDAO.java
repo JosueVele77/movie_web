@@ -5,6 +5,8 @@ import io.github.josuevele77.movie_web.model.Usuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuarioDAO {
 
@@ -88,6 +90,32 @@ public class UsuarioDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Método para obtener todos los usuarios
+    public java.util.List<Usuario> listarTodos() {
+        java.util.List<Usuario> usuarios = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM public.tb_usuario";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setIdUs(rs.getInt("id_us"));
+                u.setIdPer(rs.getInt("id_per"));
+                u.setIdEst(rs.getInt("id_est"));
+                u.setNombreUs(rs.getString("nombre_us"));
+                u.setCedulaUs(rs.getString("cedula_us"));
+                u.setCorreoUs(rs.getString("correo_us"));
+                u.setClaveUs(rs.getString("clave_us"));
+                u.setAvatarUrl(rs.getString("avatar_url"));
+                usuarios.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return usuarios;
     }
 
 }
