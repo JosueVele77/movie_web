@@ -91,6 +91,9 @@
     <div class="row">
         <div class="col-md-3 col-lg-2 sidebar p-3 d-flex flex-column">
             <div class="brand text-center my-4">
+                <a href="<%= request.getContextPath() %>/index.jsp" style="text-decoration: none;">
+                    <img src="<%= request.getContextPath() %>/img/logo-cinestore.svg" alt="CineStore" style="width: 60px; height: 60px; object-fit: contain; margin-bottom: 0.5rem; cursor: pointer;">
+                </a>
                 <h3 class="fw-bold m-0 text-white" style="letter-spacing: 1px;">CINE<span style="color: var(--accent-color);">STORE</span></h3>
                 <small class="text-white-50">Panel Administrativo</small>
             </div>

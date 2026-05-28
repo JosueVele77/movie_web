@@ -16,11 +16,19 @@
         }
     </script>
 </head>
-<body class="d-flex align-items-center min-vh-100 position-relative overflow-hidden">
+<body class="d-flex flex-column align-items-center min-vh-100 position-relative overflow-hidden">
 <div id="stars-container"></div>
 
-<div class="container text-center position-relative" style="z-index: 10;">
-    <div class="row justify-content-center">
+<nav class="navbar navbar-expand-lg custom-navbar py-3 w-100">
+    <div class="container-fluid px-4 px-lg-5">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/index.jsp">
+            <img src="${pageContext.request.contextPath}/img/logo-cinestore.svg" alt="CineStore" style="width: 50px; height: 50px; object-fit: contain;">
+        </a>
+    </div>
+</nav>
+
+<div class="container text-center position-relative flex-grow-1 d-flex align-items-center" style="z-index: 10;">
+    <div class="row justify-content-center w-100">
         <div class="col-md-8 col-lg-6">
 
             <div class="error-icon-container mb-4">

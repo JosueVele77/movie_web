@@ -21,8 +21,8 @@
 
 <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
     <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
-            <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="<%= request.getContextPath() %>/index.jsp">
+            <img src="<%= request.getContextPath() %>/img/logo-cinestore.svg" alt="CineStore" class="brand-logo" style="width: 50px; height: 50px; object-fit: contain;">
         </a>
         <ul class="navbar-nav ms-auto align-items-center">
             <li class="nav-item">
@@ -45,26 +45,65 @@
 </header>
 
 <main class="container py-5">
-    <div id="movie-3d-grid" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-5 grid-render-3d">
+    <!-- PRIMER BLOQUE: DVD/Game Case (Actualizado a 960x720 y Autoplay) -->
+    <div class="mb-5">
+        <h2 class="text-center mb-3">DVD/Game Case</h2>
+        <div class="d-flex justify-content-center mb-2">
+            <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
+        </div>
+        <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+            <iframe title="DVD/Game Case" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="960" height="720" src="https://sketchfab.com/models/d5c542e24bee490fbdf130413983f124/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_hint=0&ui_theme=dark&autoplay=1"> </iframe>
+        </div>
+    </div>
+
+    <!-- SEGUNDO BLOQUE: Dvd Case (Se mantiene intacto) -->
+    <div>
+        <h2 class="text-center mb-3">Dvd Case</h2>
+        <div class="d-flex justify-content-center mb-2">
+            <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
+        </div>
+        <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+            <iframe title="Dvd Case" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/7c3e9934a24e4884b923c0ebbb7af547/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h2 class="text-center mb-3">DVD/PS2/Wii case</h2>
+        <div class="d-flex justify-content-center mb-2">
+            <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
+        </div>
+        <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+            <iframe title="DVD/PS2/Wii case" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/60c2e703f9764cd6885811452802b3aa/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h2 class="text-center mb-3">Shrek DVD</h2>
+        <div class="d-flex justify-content-center mb-2">
+            <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
+        </div>
+        <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+            <iframe title="Shrek DVD" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/4c5613eba422484b904988ae1144a2fb/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h2 class="text-center mb-3">Boitier DVD de 14 mm</h2>
+        <div class="d-flex justify-content-center mb-2">
+            <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
+        </div>
+        <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+            <iframe title="Boitier DVD de 14 mm" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/dcf043918a354680ad4ad86a5d2af4ae/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h2 class="text-center mb-3">Harry Potter - movie collection</h2>
+        <div class="d-flex justify-content-center mb-2">
+            <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
+        </div>
+        <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+            <iframe title="Harry Potter - movie collection" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/bb1fbd03ae3b4dff89bc358b4cbda7fd/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+        </div>
     </div>
 </main>
 
 <script src="../js/script.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Consultamos películas de ciencia ficción de alto presupuesto (ID: 878) que destacan en 3D
-        fetchAndRenderMovies('/discover/movie?with_genres=878&sort_by=revenue.desc', 'movie-3d-grid');
-
-        // Aplicamos las clases tridimensionales especiales a las tarjetas una vez se rendericen
-        const observer = new MutationObserver(() => {
-            const cards = document.querySelectorAll('#movie-3d-grid .movie-card');
-            cards.forEach(card => {
-                card.classList.add('movie-card-3d');
-            });
-        });
-
-        observer.observe(document.getElementById('movie-3d-grid'), { childList: true });
-    });
-</script>
 </body>
 </html>

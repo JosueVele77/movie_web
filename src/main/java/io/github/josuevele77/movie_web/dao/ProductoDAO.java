@@ -112,4 +112,32 @@ public class ProductoDAO {
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
+
+    public boolean existeProducto(int idPr) {
+        String sql = "SELECT 1 FROM public.tb_producto WHERE id_pr = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPr);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean registrarProductoBasico(int idPr, String nombrePr, double precioPr) {
+        String sql = "INSERT INTO public.tb_producto (id_pr, id_cat, nombre_pr, cantidad_pr, precio_pr, estado_pr) " +
+                "VALUES (?, 1, ?, 1, ?, TRUE)";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPr);
+            ps.setString(2, nombrePr == null ? "Película" : nombrePr);
+            ps.setDouble(3, precioPr);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

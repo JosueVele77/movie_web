@@ -20,7 +20,7 @@
 <nav class="navbar navbar-expand-lg custom-navbar py-3">
     <div class="container-fluid px-4 px-lg-5">
         <a class="navbar-brand d-flex align-items-center gap-2" href="<%=request.getContextPath()%>/index.jsp">
-            <img src="<%=request.getContextPath()%>/img/logo-cinestore.svg" alt="CineStore" class="brand-logo">
+            <img src="<%=request.getContextPath()%>/img/logo-cinestore.svg" alt="CineStore" class="brand-logo" style="width: 50px; height: 50px; object-fit: contain;">
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">

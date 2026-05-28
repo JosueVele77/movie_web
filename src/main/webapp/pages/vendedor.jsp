@@ -15,7 +15,21 @@
         return;
     }
 
-    int totalProductos = (Integer) request.getAttribute("totalP");
+    // Leer atributos con defensiva: el servlet `/vendedor` debe establecerlos,
+    // pero el usuario podría abrir directamente la JSP (por ejemplo /pages/vendedor.jsp),
+    // en cuyo caso los atributos no existirán y la conversión a int produciría NPE.
+    Object totalPAttr = request.getAttribute("totalP");
+    int totalProductos = 0;
+    if (totalPAttr instanceof Number) {
+        totalProductos = ((Number) totalPAttr).intValue();
+    } else if (totalPAttr instanceof String) {
+        try {
+            totalProductos = Integer.parseInt((String) totalPAttr);
+        } catch (NumberFormatException e) {
+            totalProductos = 0;
+        }
+    }
+
     List<Producto> todosProductos = (List<Producto>) request.getAttribute("todosProductos");
 
     if (todosProductos == null) {
@@ -86,6 +100,9 @@
     <div class="row">
         <div class="col-md-3 col-lg-2 sidebar p-3 d-flex flex-column">
             <div class="brand text-center my-4">
+                <a href="<%= request.getContextPath() %>/index.jsp" style="text-decoration: none;">
+                    <img src="<%= request.getContextPath() %>/img/logo-cinestore.svg" alt="CineStore" style="width: 60px; height: 60px; object-fit: contain; margin-bottom: 0.5rem; cursor: pointer;">
+                </a>
                 <h3 class="fw-bold m-0 text-white" style="letter-spacing: 1px;">CINE<span style="color: var(--accent-color);">STORE</span></h3>
                 <small class="text-white-50">Panel Vendedor</small>
             </div>

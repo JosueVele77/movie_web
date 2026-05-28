@@ -21,6 +21,11 @@ public class LogoutServlet extends HttpServlet {
             session.invalidate();
         }
 
+        // Prevenir que el navegador guarde en cache
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+
         // Redirigimos al usuario a la pantalla de Login después de borrar su sesión
         response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
     }

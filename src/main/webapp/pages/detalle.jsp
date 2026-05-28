@@ -96,8 +96,8 @@
 
 <nav class="navbar navbar-expand-lg custom-navbar py-3 sticky-top">
     <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.jsp">
-            <img src="../img/logo-cinestore.svg" alt="CineStore" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3172/3172552.png'">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="<%= request.getContextPath() %>/index.jsp">
+            <img src="<%= request.getContextPath() %>/img/logo-cinestore.svg" alt="CineStore" class="brand-logo" style="width: 50px; height: 50px; object-fit: contain;">
         </a>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
@@ -135,8 +135,8 @@
                 <img id="moviePoster" src="" alt="Movie Poster" class="poster-img img-fluid">
 
                 <div class="d-grid gap-2 mt-4">
-                    <button class="btn btn-primary rounded-pill fw-bold py-2 btn-login" style="border:none;">
-                        <i class="bi bi-ticket-perforated me-2"></i> COMPRAR ENTRADAS
+                    <button type="button" class="btn btn-primary rounded-pill fw-bold py-2 btn-login" style="border:none;" id="btn-comprar-detalle">
+                        <i class="bi bi-ticket-perforated me-2"></i> COMPRAR PELÍCULA
                     </button>
                     <button class="btn btn-outline-light rounded-pill fw-bold py-2 border-secondary" style="color:var(--text-color);">
                         <i class="bi bi-play-circle me-2"></i> VER TRAILER
@@ -212,31 +212,31 @@
 
             if (!movieResponse.ok) throw new Error('Movie not found');
 
-            const movie = await movieResponse.json();
+            window.movieGlobal = await movieResponse.json();
             const credits = await creditsResponse.json();
 
             // Populate movie data (Escapando variables de imagen y runtime)
             const posterEl = document.getElementById('moviePoster');
-            posterEl.src = movie.poster_path ? IMG_URL_W500 + movie.poster_path : 'https://via.placeholder.com/500x750?text=No+Image';
+            posterEl.src = window.movieGlobal.poster_path ? IMG_URL_W500 + window.movieGlobal.poster_path : 'https://via.placeholder.com/500x750?text=No+Image';
 
-            document.getElementById('movieTitle').textContent = movie.title;
-            document.getElementById('movieTagline').textContent = movie.tagline || '';
-            document.getElementById('movieRating').textContent = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
-            document.getElementById('movieReleaseDate').textContent = new Date(movie.release_date).toLocaleDateString() || 'Desconocida';
-            document.getElementById('movieRuntime').textContent = movie.runtime ? `\${movie.runtime} min` : 'Desconocida';
-            document.getElementById('movieOverview').textContent = movie.overview || 'No hay sinopsis disponible.';
+            document.getElementById('movieTitle').textContent = window.movieGlobal.title;
+            document.getElementById('movieTagline').textContent = window.movieGlobal.tagline || '';
+            document.getElementById('movieRating').textContent = window.movieGlobal.vote_average ? window.movieGlobal.vote_average.toFixed(1) : 'N/A';
+            document.getElementById('movieReleaseDate').textContent = new Date(window.movieGlobal.release_date).toLocaleDateString() || 'Desconocida';
+            document.getElementById('movieRuntime').textContent = window.movieGlobal.runtime ? `\${window.movieGlobal.runtime} min` : 'Desconocida';
+            document.getElementById('movieOverview').textContent = window.movieGlobal.overview || 'No hay sinopsis disponible.';
 
             // --- FONDO CINEMÁTICO ---
             const backdropEl = document.getElementById('movieBackdrop');
-            if (backdropEl && movie.backdrop_path) {
-                backdropEl.src = 'https://image.tmdb.org/t/p/original' + movie.backdrop_path;
+            if (backdropEl && window.movieGlobal.backdrop_path) {
+                backdropEl.src = 'https://image.tmdb.org/t/p/original' + window.movieGlobal.backdrop_path;
                 backdropEl.style.display = 'block';
             }
 
             // --- GÉNEROS ---
             const genresContainer = document.getElementById('movieGenres');
-            if (movie.genres && movie.genres.length > 0) {
-                movie.genres.forEach(genre => {
+            if (window.movieGlobal.genres && window.movieGlobal.genres.length > 0) {
+                window.movieGlobal.genres.forEach(genre => {
                     const badge = document.createElement('span');
                     badge.className = 'genre-badge';
                     badge.textContent = genre.name;
@@ -262,18 +262,12 @@
             }
 
             // --- BOTÓN DE COMPRAR ---
-            // (¡Corregido! Debe ir aquí abajo porque necesita usar la variable 'movie')
             const btnComprarDetalle = document.getElementById('btn-comprar-detalle');
             if (btnComprarDetalle) {
                 btnComprarDetalle.addEventListener('click', () => {
-                    const movieData = {
-                        id: movie.id,
-                        title: movie.title,
-                        posterPath: movie.poster_path || null,
-                        date: movie.release_date ? movie.release_date.split('-')[0] : 'N/D',
-                        rating: typeof movie.vote_average === 'number' ? movie.vote_average : null
-                    };
-                    purchaseMovie(movieData);
+                    if (window.movieGlobal && window.movieGlobal.id) {
+                        window.location.href = `compra.jsp?id=${window.movieGlobal.id}`;
+                    }
                 });
             }
 
@@ -311,15 +305,15 @@
                 backEl.className = 'case-back';
 
                 // Formateamos datos para imprimir en la contraportada
-                const genresString = movie.genres ? movie.genres.map(g => g.name).join(', ') : 'N/D';
-                const ratingValue = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/D';
+                const genresString = window.movieGlobal.genres ? window.movieGlobal.genres.map(g => g.name).join(', ') : 'N/D';
+                const ratingValue = window.movieGlobal.vote_average ? window.movieGlobal.vote_average.toFixed(1) : 'N/D';
 
                 // Limpiamos la sinopsis para que encaje
-                const overviewText = movie.overview ? movie.overview : 'Sinopsis no disponible en este momento.';
+                const overviewText = window.movieGlobal.overview ? window.movieGlobal.overview : 'Sinopsis no disponible en este momento.';
 
                 backEl.innerHTML = `
                     <div class="case-back-content">
-                        <h5 class="back-title" style="color: var(--accent-color); font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;">\${movie.title}</h5>
+                        <h5 class="back-title" style="color: var(--accent-color); font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;">\${window.movieGlobal.title}</h5>
                         <p class="back-synopsis" style="font-size: 0.9rem; line-height: 1.5; color: rgba(255,255,255,0.8); display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden;">\${overviewText}</p>
                         <div class="tech-specs mt-auto small text-muted" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                             <p class="mb-1">Géneros: \${genresString}</p>
@@ -358,6 +352,251 @@
         }
     });
 </script>
+
+<!-- Modal de Compra -->
+<div class="modal fade" id="modalCompra" tabindex="-1" aria-labelledby="modalCompraLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background: linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 100%); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title fw-bold" id="modalCompraLabel" style="color: var(--accent-color);">
+                    <i class="bi bi-credit-card me-2"></i>Información de Compra
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Resumen de película -->
+                <div class="row mb-4 pb-4 border-bottom border-secondary">
+                    <div class="col-md-3 text-center">
+                        <img id="modalMoviePoster" src="" alt="Película" style="max-width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                    </div>
+                    <div class="col-md-9">
+                        <h5 id="modalMovieTitle" class="fw-bold text-white mb-2"></h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <span class="text-muted small">Precio:</span>
+                                <p id="modalMoviePrice" class="fs-5 fw-bold text-success">$9.99</p>
+                            </div>
+                            <div class="col-md-6">
+                                <span class="text-muted small">Acceso:</span>
+                                <p class="fs-6 text-info">Acceso de por vida ∞</p>
+                            </div>
+                        </div>
+                        <div class="alert alert-info py-2 mb-0">
+                            <small><i class="bi bi-info-circle me-1"></i>Una vez comprada, podrás acceder a esta película desde "Mi Contenido"</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Métodos de pago -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-white mb-3">
+                        <i class="bi bi-credit-card me-2"></i>Tarjeta de Crédito/Débito
+                    </label>
+                    <div class="mb-3">
+                        <label class="text-muted small mb-2">Titular de la Tarjeta</label>
+                        <input type="text" class="form-control" id="inputTitular" placeholder="NOMBRE APELLIDO" maxlength="50">
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small mb-2">Número de Tarjeta</label>
+                        <input type="text" class="form-control" id="inputNumeroTarjeta" placeholder="1234 5678 9012 3456" maxlength="16" inputmode="numeric">
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-shield-check me-1"></i>Empresas aceptadas:
+                            <span class="badge bg-info" title="Visa">
+                                <i class="fab fa-cc-visa"></i> Visa
+                            </span>
+                            <span class="badge bg-warning text-dark" title="Mastercard">
+                                <i class="fab fa-cc-mastercard"></i> Mastercard
+                            </span>
+                            <span class="badge bg-danger" title="American Express">
+                                <i class="fab fa-cc-amex"></i> Amex
+                            </span>
+                            <span class="badge bg-primary" title="Discover">
+                                <i class="fab fa-cc-discover"></i> Discover
+                            </span>
+                        </small>
+                        <div id="cardTypeInfo" class="mt-2 small"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="text-muted small mb-2">Vencimiento (MM/AA)</label>
+                            <input type="text" class="form-control" id="inputVencimiento" placeholder="12/25" maxlength="5">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small mb-2">CVV</label>
+                            <input type="password" class="form-control" id="inputCVV" placeholder="123" maxlength="4" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmación de términos -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="checkTerminos">
+                    <label class="form-check-label text-muted small" for="checkTerminos">
+                        Acepto los <a href="#" class="text-info text-decoration-none">términos y condiciones</a> de compra
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary">
+                <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success rounded-pill px-5 fw-bold" id="btnConfirmarCompra">
+                    <i class="bi bi-check-circle me-2"></i>Confirmar Compra
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="../js/script.js"></script>
+<script>
+    // Validador de tarjeta y manejo de compra
+    let movieDataGlobal = {};
+
+    // Limpiar formulario cuando se abre el modal
+    const modalCompraEl = document.getElementById('modalCompra');
+    if (modalCompraEl) {
+        modalCompraEl.addEventListener('show.bs.modal', function() {
+            // Limpiar inputs
+            document.getElementById('inputTitular').value = '';
+            document.getElementById('inputNumeroTarjeta').value = '';
+            document.getElementById('inputVencimiento').value = '';
+            document.getElementById('inputCVV').value = '';
+            document.getElementById('checkTerminos').checked = false;
+            document.getElementById('cardTypeInfo').innerHTML = '';
+        });
+    }
+
+    // El evento show.bs.modal ya no es necesario porque los datos se establecen
+    // en el evento click del botón de compra en detalle.jsp
+
+    // Detectar tipo de tarjeta automáticamente
+    document.getElementById('inputNumeroTarjeta').addEventListener('input', function(e) {
+        let numero = e.target.value.replace(/\s/g, '');
+        const cardType = detectarTipoTarjeta(numero);
+
+        const infoEl = document.getElementById('cardTypeInfo');
+        if (cardType) {
+            infoEl.innerHTML = '<strong>Tarjeta detectada:</strong> <span class="badge bg-secondary">' + cardType + '</span>';
+            infoEl.className = 'mt-2 small text-success';
+        } else {
+            infoEl.innerHTML = '';
+        }
+    });
+
+    function detectarTipoTarjeta(numero) {
+        numero = numero.replace(/\D/g, '');
+
+        if (/^4/.test(numero)) return '💳 Visa';
+        if (/^5[1-5]/.test(numero) || /^2[2-7]/.test(numero)) return '💳 Mastercard';
+        if (/^3[47]/.test(numero)) return '💳 American Express';
+        if (/^6(?:011|5)/.test(numero)) return '💳 Discover';
+
+        return null;
+    }
+
+    function validarTarjeta(numero) {
+        numero = numero.replace(/\D/g, '');
+
+        if (numero.length < 13 || numero.length > 19) return false;
+
+        let suma = 0;
+        let multiplicar = false;
+
+        for (let i = numero.length - 1; i >= 0; i--) {
+            let digito = parseInt(numero.charAt(i));
+
+            if (multiplicar) {
+                digito *= 2;
+                if (digito > 9) digito -= 9;
+            }
+
+            suma += digito;
+            multiplicar = !multiplicar;
+        }
+
+        return suma % 10 === 0;
+    }
+
+    function formatearNumeroTarjeta(numero) {
+        return numero.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    // Botón confirmar compra
+    document.getElementById('btnConfirmarCompra').addEventListener('click', async function() {
+        const titular = document.getElementById('inputTitular').value.trim();
+        const numeroTarjeta = document.getElementById('inputNumeroTarjeta').value.replace(/\s/g, '');
+        const vencimiento = document.getElementById('inputVencimiento').value.trim();
+        const cvv = document.getElementById('inputCVV').value.trim();
+        const checkTerminos = document.getElementById('checkTerminos').checked;
+
+        // Validaciones
+        if (!titular) {
+            alert('Por favor, ingresa el titular de la tarjeta');
+            return;
+        }
+        if (!numeroTarjeta || numeroTarjeta.length < 13) {
+            alert('Por favor, ingresa un número de tarjeta válido');
+            return;
+        }
+        if (!validarTarjeta(numeroTarjeta)) {
+            alert('Número de tarjeta inválido. Por favor, verifica los dígitos');
+            return;
+        }
+        if (!vencimiento || !/^\d{2}\/\d{2}$/.test(vencimiento)) {
+            alert('Por favor, ingresa la fecha de vencimiento en formato MM/AA');
+            return;
+        }
+        if (!cvv || cvv.length < 3) {
+            alert('Por favor, ingresa un CVV válido');
+            return;
+        }
+        if (!checkTerminos) {
+            alert('Debes aceptar los términos y condiciones');
+            return;
+        }
+
+        // Desabilitar el botón
+        this.disabled = true;
+        const btnText = this.innerHTML;
+        this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
+
+        try {
+            const response = await fetch('<%= request.getContextPath() %>/procesarCompra', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'productoId=' + movieDataGlobal.id +
+                      '&titularTarjeta=' + encodeURIComponent(titular) +
+                      '&numeroTarjeta=' + numeroTarjeta +
+                      '&total=' + document.getElementById('modalMoviePrice').textContent.replace('$', '')
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('¡Compra realizada exitosamente! Accede a "Mi Contenido" para verla');
+                // Cerrar modal
+                const modalEl = document.getElementById('modalCompra');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+
+                // Limpiar formulario
+                document.getElementById('inputTitular').value = '';
+                document.getElementById('inputNumeroTarjeta').value = '';
+                document.getElementById('inputVencimiento').value = '';
+                document.getElementById('inputCVV').value = '';
+                document.getElementById('checkTerminos').checked = false;
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error de conexión. Intenta de nuevo');
+        } finally {
+            this.disabled = false;
+            this.innerHTML = btnText;
+        }
+    });
+</script>
 </body>
 </html>

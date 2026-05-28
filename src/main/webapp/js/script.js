@@ -13,8 +13,14 @@ const FALLBACK_BACKDROP_URL = `${ASSET_BASE}img/fallback-backdrop.svg`;
 
 const state = {
     activeCatalogTab: 'recent',
-    isLoggedIn: localStorage.getItem('isLoggedIn') === 'true'
+    isLoggedIn: localStorage.getItem('isLoggedIn') === 'true',
+    favorites: [],
+    favoriteIds: new Set()
 };
+
+function areFavoritesEnabled() {
+    return !(document.body && document.body.dataset && document.body.dataset.disableFavorites === 'true');
+}
 
 // --- DOM Elements ---
 const catalogPanels = {
@@ -85,14 +91,6 @@ function openMovieDetail(movieId) {
     if (evt) {
         const card = evt.target.closest('.movie-card');
 
-        // --- DETECTAR SI VIENE DE LA SALA 3D ---
-        if (card && card.closest('#movie-3d-grid')) {
-            localStorage.setItem('comesFrom3dSection', 'true');
-        } else {
-            localStorage.removeItem('comesFrom3dSection'); // Limpia si viene de otro lado
-        }
-        // ---------------------------------------
-
         if (card) {
             card.classList.add('movie-card-expanding');
             document.body.classList.add('page-leaving');
@@ -123,6 +121,35 @@ function executeNavigation(movieId) {
         ? `${basePath}detalle.jsp`
         : `${basePath}pages/detalle.jsp`;
     window.location.href = `${detailPath}?id=${encodeURIComponent(movieId)}`;
+}
+
+function getPagesBase() {
+    return window.location.pathname.includes('/pages/') ? '' : 'pages/';
+}
+
+async function loadFavorites() {
+    try {
+        const apiRoot = window.location.pathname.includes('/pages/') ? '..' : '.';
+        const response = await fetch(`${apiRoot}/favoritos`, { headers: { 'Accept': 'application/json' } });
+        if (!response.ok) {
+            state.favorites = [];
+            state.favoriteIds = new Set();
+            return;
+        }
+        const data = await response.json();
+        if (data && data.requiresAuth) {
+            state.favorites = [];
+            state.favoriteIds = new Set();
+            return;
+        }
+        const favorites = Array.isArray(data.favorites) ? data.favorites : [];
+        state.favorites = favorites;
+        state.favoriteIds = new Set(favorites.map(item => item.id));
+    } catch (error) {
+        console.error('Error cargando favoritos:', error);
+        state.favorites = [];
+        state.favoriteIds = new Set();
+    }
 }
 
 function updateCatalogTabs() {
@@ -431,65 +458,6 @@ async function fetchAndRenderLoginCarousel() {
     }
 }
 
-function initBluRayDrag(container) {
-    const cards = container.querySelectorAll('.blu-ray-card');
-    cards.forEach(card => {
-        const box = card.querySelector('.blu-ray-case');
-        if (!box) return;
-
-        let isDragging = false;
-        let startX = 0;
-        let startRotation = Number(card.dataset.rotY || 0);
-        let moved = false;
-
-        const applyRotation = (rotation) => {
-            card.dataset.rotY = String(rotation);
-            box.style.transform = `rotateY(${rotation}deg)`;
-        };
-
-        applyRotation(startRotation);
-
-        const onPointerMove = (event) => {
-            if (!isDragging) return;
-            const deltaX = event.clientX - startX;
-            const rotation = startRotation + deltaX * 0.6;
-            if (Math.abs(deltaX) > 4) moved = true;
-            applyRotation(rotation);
-        };
-
-        const stopDrag = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            card.classList.remove('is-dragging');
-            card.dataset.dragging = 'false';
-            window.removeEventListener('pointermove', onPointerMove);
-            window.removeEventListener('pointerup', stopDrag);
-            window.removeEventListener('pointercancel', stopDrag);
-        };
-
-        box.addEventListener('pointerdown', (event) => {
-            event.preventDefault();
-            isDragging = true;
-            moved = false;
-            startX = event.clientX;
-            startRotation = Number(card.dataset.rotY || 0);
-            card.classList.add('is-dragging');
-            card.dataset.dragging = 'true';
-            box.setPointerCapture(event.pointerId);
-            window.addEventListener('pointermove', onPointerMove);
-            window.addEventListener('pointerup', stopDrag);
-            window.addEventListener('pointercancel', stopDrag);
-        });
-
-        card.addEventListener('click', (event) => {
-            if (card.dataset.dragging === 'true' || moved) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-        }, true);
-    });
-}
-
 async function fetchAndRenderMovies(endpoint, containerId, limit = CATALOG_LIMIT, pages = 1) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -517,10 +485,11 @@ async function fetchAndRenderMovies(endpoint, containerId, limit = CATALOG_LIMIT
             return;
         }
 
-        const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        const favorites = state.favoriteIds;
+        const favoritesEnabled = areFavoritesEnabled();
 
         movies.forEach(movie => {
-            const isFavorite = favorites.some(fav => fav.id === movie.id);
+            const isFavorite = favorites.has(movie.id);
             const posterSrc = movie.poster_path ? `${IMG_URL}${movie.poster_path}` : FALLBACK_POSTER_URL;
             const movieData = {
                 id: movie.id,
@@ -531,37 +500,19 @@ async function fetchAndRenderMovies(endpoint, containerId, limit = CATALOG_LIMIT
             };
             const ratingText = movieData.rating !== null ? movieData.rating.toFixed(1) : 'N/D';
             const starsHtml = renderRatingStars(movieData.rating);
-            const is3dGrid = containerId === 'movie-3d-grid';
+            const movieDataJson = JSON.stringify(movieData).replace(/"/g, '&quot;');
+            const favoriteIconClass = isFavorite ? 'bi-heart-fill' : 'bi-heart';
+            const favoriteIcon = favoritesEnabled
+                ? `<i class="bi ${favoriteIconClass} favorite-icon" onclick="event.stopPropagation(); toggleFavorite(this, ${movieDataJson})"></i>`
+                : `<i class="bi ${favoriteIconClass} favorite-icon favorite-icon-disabled" title="Favoritos no disponible en esta vista"></i>`;
 
             const col = document.createElement('div');
             col.className = 'col';
-            col.innerHTML = is3dGrid
-                ? `
-                <div class="movie-card movie-card-3d h-100 d-flex flex-column blu-ray-card" style="cursor: pointer;" onclick="openMovieDetail(${movieData.id})">
-                    <div class="blu-ray-scene">
-                        <div class="blu-ray-case">
-                            <div class="blu-ray-face blu-ray-front">
-                                <img src="${posterSrc}" alt="${movieData.title}" onerror="this.onerror=null;this.src='${FALLBACK_POSTER_URL}'">
-                                <span class="blu-ray-badge">BLU-RAY 3D</span>
-                                <div class="blu-ray-gloss"></div>
-                            </div>
-                            <div class="blu-ray-face blu-ray-back">
-                                <div class="blu-ray-back-content">
-                                    <h3>${movieData.title}</h3>
-                                    <p>${movie.overview ? movie.overview.substring(0, 140) + '...' : 'Edicion 3D coleccionable con audio premium.'}</p>
-                                    <div class="blu-ray-back-meta">${ratingText} · ${movieData.date}</div>
-                                </div>
-                            </div>
-                            <div class="blu-ray-spine"><span>${movieData.title}</span></div>
-                        </div>
-                    </div>
-                </div>
-                `
-                : `
+            col.innerHTML = `
                 <div class="movie-card h-100 d-flex flex-column" style="cursor: pointer;" onclick="openMovieDetail(${movieData.id})">
                     <div style="position: relative;">
                         <img src="${posterSrc}" alt="${movieData.title}" onerror="this.onerror=null;this.src='${FALLBACK_POSTER_URL}'">
-                        <i class="bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon" onclick="event.stopPropagation(); toggleFavorite(this, ${JSON.stringify(movieData).replace(/"/g, '&quot;')})"></i>
+                        ${favoriteIcon}
                     </div>
                     <div class="movie-info d-flex flex-column flex-grow-1">
                         <h3 class="movie-title">${movieData.title}</h3>
@@ -570,17 +521,13 @@ async function fetchAndRenderMovies(endpoint, containerId, limit = CATALOG_LIMIT
                             <span class="movie-rating-text">${ratingText} · ${movieData.date}</span>
                         </div>
                         <div class="card-actions d-flex gap-2 mt-auto" onclick="event.stopPropagation();">
-                            <button class="btn btn-card-comprar flex-grow-1" onclick="purchaseMovie(${JSON.stringify(movieData).replace(/"/g, '&quot;')})">COMPRAR</button>
+                            <button class="btn btn-card-comprar flex-grow-1" onclick="purchaseMovie(${movieDataJson})">COMPRAR</button>
                         </div>
                     </div>
                 </div>
                 `;
             container.appendChild(col);
         });
-
-        if (containerId === 'movie-3d-grid') {
-            initBluRayDrag(container);
-        }
     } catch (error) {
         console.error('Error fetching movies:', error);
         container.innerHTML = '<p class="text-danger">Error al cargar el catálogo.</p>';
@@ -637,37 +584,58 @@ if (searchClearButton) {
 // --- User Actions ---
 // --- User Actions ---
 function toggleFavorite(icon, movieData) {
-    if (!state.isLoggedIn) {
-        // Llamamos al nuevo modal estilizado
-        showAuthRequiredModal('añadir películas a tus favoritos');
+    if (!areFavoritesEnabled()) {
         return;
     }
-    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    const movieIndex = favorites.findIndex(fav => fav.id === movieData.id);
 
-    if (movieIndex > -1) {
-        favorites.splice(movieIndex, 1);
-        icon.classList.replace('bi-heart-fill', 'bi-heart');
-    } else {
-        favorites.push(movieData);
-        icon.classList.replace('bi-heart', 'bi-heart-fill');
-    }
-    localStorage.setItem('favorites', JSON.stringify(favorites));
+    const apiRoot = window.location.pathname.includes('/pages/') ? '..' : '.';
+    const body = new URLSearchParams({
+        tmdbId: String(movieData.id),
+        title: movieData.title || '',
+        posterPath: movieData.posterPath || '',
+        releaseYear: movieData.date || ''
+    });
+
+    fetch(`${apiRoot}/favoritos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+    })
+        .then(response => {
+            if (response.status === 401) {
+                showAuthRequiredModal('añadir películas a tus favoritos');
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return;
+            if (!data.success) {
+                if (data.requiresAuth) {
+                    showAuthRequiredModal('añadir películas a tus favoritos');
+                }
+                return;
+            }
+            if (data.isFavorite) {
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
+                state.favoriteIds.add(movieData.id);
+            } else {
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
+                state.favoriteIds.delete(movieData.id);
+            }
+        })
+        .catch(error => console.error('Error al actualizar favoritos:', error));
 }
 
 function purchaseMovie(movieData) {
     if (!state.isLoggedIn) {
-        // Llamamos al nuevo modal estilizado
         showAuthRequiredModal('comprar esta película');
         return;
     }
-    let purchased = JSON.parse(localStorage.getItem('purchased')) || [];
-    if (!purchased.some(p => p.id === movieData.id)) {
-        purchased.push(movieData);
-        localStorage.setItem('purchased', JSON.stringify(purchased));
-        alert('¡"' + movieData.title + '" ha sido añadido a tu contenido!');
-    } else {
-        alert('Ya eres dueño de "' + movieData.title + '".');
+
+    const pagesBase = getPagesBase();
+    if (movieData && Number.isFinite(Number(movieData.id))) {
+        window.location.href = `${pagesBase}compra.jsp?id=${movieData.id}`;
     }
 }
 
@@ -689,8 +657,9 @@ if (themeToggleBtn) {
 }
 
 // --- Initializations ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     checkLoginStatus();
+    await loadFavorites();
     fetchGenres();
 
     if (document.getElementById('recent-catalog')) {

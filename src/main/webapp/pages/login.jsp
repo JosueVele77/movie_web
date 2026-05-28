@@ -112,12 +112,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/script.js"></script>
 <script>
-    // Script para alternar tema claro/oscuro
+    // Limpiar datos temporales del UI
     document.addEventListener('DOMContentLoaded', function() {
+        localStorage.removeItem('comesFrom3dSection');
+
+        // Script para alternar tema claro/oscuro
         const html = document.documentElement;
         const btn = document.getElementById('theme-toggle');
         const icon = document.getElementById('theme-icon');
-        // Cargar preferencia guardada
+        // Cargar preferencia guardada (mantener tema)
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             html.setAttribute('data-bs-theme', savedTheme);
