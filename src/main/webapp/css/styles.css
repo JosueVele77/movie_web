@@ -149,7 +149,12 @@ body {
 }
 
 .user-avatar-img {
-    object-fit: cover;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: contain;
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid var(--accent-color);
 }
 
 .user-name {
@@ -416,6 +421,60 @@ body {
     background-color: var(--card-bg);
 }
 
+.auth-home-logo {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 20;
+    display: inline-flex;
+    width: 58px;
+    height: 58px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(15, 15, 18, 0.75);
+    border: 1px solid rgba(255, 140, 0, 0.55);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.auth-home-logo img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.auth-panel {
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+[data-bs-theme="dark"] .auth-panel {
+    background-color: #141414 !important;
+    color: #f8f9fa;
+}
+
+[data-bs-theme="dark"] .auth-panel .text-dark,
+[data-bs-theme="dark"] .auth-panel .form-control {
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .auth-panel .text-muted {
+    color: rgba(255, 255, 255, 0.66) !important;
+}
+
+[data-bs-theme="dark"] .auth-panel .custom-modal-divider {
+    background-color: #141414 !important;
+}
+
+[data-bs-theme="dark"] .auth-panel .input-group,
+[data-bs-theme="dark"] .auth-panel .form-control,
+[data-bs-theme="dark"] .auth-panel .input-group-text {
+    border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-bs-theme="dark"] .auth-panel .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
 /* Estilo para los inputs: solo borde inferior como en el diseño */
 .custom-modal .form-control {
     border-top: none;
@@ -636,28 +695,30 @@ body {
 
 [data-bs-theme="light"] .category-hero {
     background-image:
+            linear-gradient(135deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.42)),
             var(--category-hero-image, url('../img/fallback-backdrop.svg')),
             url('../img/fallback-backdrop.svg');
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    color: #212529;
+    color: #ffffff;
 }
 
 [data-bs-theme="light"] .category-hero .display-4,
 [data-bs-theme="light"] .category-hero h1 {
-    color: #212529 !important;
+    color: #ffffff !important;
 }
 
 [data-bs-theme="light"] .category-hero-card {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(0, 0, 0, 0.08);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.56);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(4px);
 }
 
 [data-bs-theme="light"] .category-hero-label,
 [data-bs-theme="light"] .category-hero-subtitle,
 [data-bs-theme="light"] .category-hero-highlight,
 [data-bs-theme="light"] .category-hero-meta {
-    color: #2f2f2f;
+    color: rgba(255, 255, 255, 0.88);
 }
 
 [data-bs-theme="light"] .category-hero-card,
@@ -1271,6 +1332,72 @@ body.page-leaving::after {
 }
 
 /* Avatar selector en registro */
+.avatar-main-container {
+    width: min(190px, 100%);
+    margin-inline: auto;
+}
+
+.avatar-main-preview {
+    width: 180px;
+    height: 180px;
+    max-width: 100%;
+    margin-inline: auto;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+[data-bs-theme="light"] .avatar-main-preview {
+    background: #f4f6f8;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.avatar-main-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.avatar-checked-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    position: absolute;
+    right: 18px;
+    bottom: 6px;
+    background: var(--accent-color);
+    color: #111;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    border: 2px solid var(--bg-color);
+}
+
+.avatar-drawer {
+    max-height: 190px;
+    overflow: auto;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-bs-theme="light"] .avatar-drawer {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.avatar-grid-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+    gap: 10px;
+}
+
 .signup-avatar-picker {
     display: flex;
     flex-direction: column;
@@ -1326,9 +1453,64 @@ body.page-leaving::after {
     transform: translateY(-1px);
 }
 
+.avatar-option.active,
 .avatar-option.is-selected {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 4px rgba(241, 179, 78, 0.2);
+}
+
+.user-profile-badge img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-page .profile-title,
+.profile-page .profile-card,
+.profile-page .profile-card .form-label,
+.profile-page .profile-card .list-group-item {
+    color: var(--text-color) !important;
+}
+
+[data-bs-theme="light"] .profile-page .profile-card {
+    background: rgba(255, 255, 255, 0.92);
+}
+
+[data-bs-theme="light"] .profile-page .profile-card .text-muted,
+[data-bs-theme="light"] .profile-page .profile-card small {
+    color: #5f6670 !important;
+}
+
+[data-bs-theme="light"] .profile-page .profile-card .input-group-text,
+[data-bs-theme="light"] .profile-page .profile-card .form-control {
+    color: #1f2937 !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-bs-theme="light"] .checkout-card {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    color: #1f2937;
+}
+
+[data-bs-theme="light"] .checkout-card .form-control,
+[data-bs-theme="light"] .checkout-card .input-group-text {
+    background-color: #ffffff;
+    color: #1f2937;
+    border-color: rgba(31, 41, 55, 0.25);
+}
+
+[data-bs-theme="light"] .checkout-card .text-muted,
+[data-bs-theme="light"] .checkout-nav-title {
+    color: #4b5563 !important;
+}
+
+[data-bs-theme="light"] .checkout-card h3,
+[data-bs-theme="light"] .checkout-card h4,
+[data-bs-theme="light"] .checkout-card label {
+    color: #111827 !important;
 }
 
 .cedula-province {

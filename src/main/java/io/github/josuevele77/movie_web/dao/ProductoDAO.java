@@ -11,7 +11,7 @@ public class ProductoDAO {
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDouble(1, precio);
-            // Si elige ocultar se envía false, si no, mantiene su visibilidad actual
+            // Si elige ocultar se envÃ­a false, si no, mantiene su visibilidad actual
             ps.setBoolean(2, ocultar);
             ps.setInt(3, idPr);
             return ps.executeUpdate() > 0;
@@ -23,12 +23,14 @@ public class ProductoDAO {
         String sql = "UPDATE public.tb_producto SET estado_pr = TRUE WHERE id_pr = ?";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+            int idCategoria = obtenerOCrearCategoriaDefault(con);
             ps.setInt(1, idPr);
+            ps.setInt(2, idCategoria);
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
 
-    // Métodos para estadísticas y control del Administrador
+    // MÃ©todos para estadÃ­sticas y control del Administrador
     public int contarTotalProductos() {
         String sql = "SELECT COUNT(*) FROM public.tb_producto";
         try (Connection con = io.github.josuevele77.movie_web.config.DatabaseConnection.getConnection();
@@ -49,7 +51,7 @@ public class ProductoDAO {
         return 0;
     }
 
-    // Devuelve la lista de películas inactivas que el empleado ocultó
+    // Devuelve la lista de pelÃ­culas inactivas que el empleado ocultÃ³
     public java.util.List<io.github.josuevele77.movie_web.model.Producto> listarOcultos() {
         java.util.List<io.github.josuevele77.movie_web.model.Producto> lista = new java.util.ArrayList<>();
         String sql = "SELECT * FROM public.tb_producto WHERE estado_pr = FALSE ORDER BY id_pr DESC";
@@ -70,7 +72,7 @@ public class ProductoDAO {
         return lista;
     }
 
-    // Devuelve la lista de todas las películas activas (para vendedores)
+    // Devuelve la lista de todas las pelÃ­culas activas (para vendedores)
     public java.util.List<io.github.josuevele77.movie_web.model.Producto> listarTodos() {
         java.util.List<io.github.josuevele77.movie_web.model.Producto> lista = new java.util.ArrayList<>();
         String sql = "SELECT * FROM public.tb_producto WHERE estado_pr = TRUE ORDER BY id_pr DESC";
@@ -91,7 +93,7 @@ public class ProductoDAO {
         return lista;
     }
 
-    // Método para que vendedor oculte un producto
+    // MÃ©todo para que vendedor oculte un producto
     public boolean ocultarProducto(int idPr) {
         String sql = "UPDATE public.tb_producto SET estado_pr = FALSE WHERE id_pr = ?";
         try (Connection con = io.github.josuevele77.movie_web.config.DatabaseConnection.getConnection();
@@ -101,7 +103,7 @@ public class ProductoDAO {
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
 
-    // Método para actualizar precio y descuento
+    // MÃ©todo para actualizar precio y descuento
     public boolean actualizarPrecio(int idPr, double nuevoPrecio, double descuento) {
         String sql = "UPDATE public.tb_producto SET precio_pr = ? WHERE id_pr = ?";
         try (Connection con = io.github.josuevele77.movie_web.config.DatabaseConnection.getConnection();
@@ -128,16 +130,40 @@ public class ProductoDAO {
 
     public boolean registrarProductoBasico(int idPr, String nombrePr, double precioPr) {
         String sql = "INSERT INTO public.tb_producto (id_pr, id_cat, nombre_pr, cantidad_pr, precio_pr, estado_pr) " +
-                "VALUES (?, 1, ?, 1, ?, TRUE)";
+                "VALUES (?, ?, ?, 1, ?, TRUE)";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+            int idCategoria = obtenerOCrearCategoriaDefault(con);
             ps.setInt(1, idPr);
-            ps.setString(2, nombrePr == null ? "Película" : nombrePr);
-            ps.setDouble(3, precioPr);
+            ps.setInt(2, idCategoria);
+            ps.setString(3, nombrePr == null || nombrePr.trim().isEmpty() ? "Pelicula" : nombrePr.trim());
+            ps.setDouble(4, precioPr);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private int obtenerOCrearCategoriaDefault(Connection con) throws SQLException {
+        String buscarSql = "SELECT id_cat FROM public.tb_categoria ORDER BY id_cat LIMIT 1";
+        try (PreparedStatement ps = con.prepareStatement(buscarSql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("id_cat");
+            }
+        }
+
+        String insertarSql = "INSERT INTO public.tb_categoria (descripcion_cat) VALUES (?) RETURNING id_cat";
+        try (PreparedStatement ps = con.prepareStatement(insertarSql)) {
+            ps.setString(1, "Peliculas digitales");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_cat");
+                }
+            }
+        }
+
+        throw new SQLException("No se pudo obtener o crear una categoria para el producto.");
     }
 }

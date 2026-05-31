@@ -1,4 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String defaultAvatarUrl = "https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee";
+%>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
@@ -7,11 +10,15 @@
     <title>CineStore - Crear cuenta</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 <div id="stars-container"></div>
 <div class="planet"></div>
+<a href="../index.jsp" class="auth-home-logo" aria-label="Ir al inicio">
+    <img src="../img/logo-cinestore.svg" alt="CineStore">
+</a>
 <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
     <div class="card shadow-lg border-0 overflow-hidden w-100 custom-modal" style="max-width: 1000px; border-radius: 20px; min-height: 550px;">
 
@@ -25,8 +32,8 @@
                 </div>
             </div>
 
-            <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center bg-white position-relative" data-bs-theme="light">
-                <button id="theme-toggle" class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-3" title="Cambiar tema" aria-label="Cambiar tema">
+            <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center bg-white position-relative auth-panel">
+                <button id="auth-theme-toggle" class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-3" title="Cambiar tema" aria-label="Cambiar tema">
                     <i class="bi bi-moon-stars" id="theme-icon"></i>
                 </button>
 
@@ -46,7 +53,7 @@
 
                     <div class="avatar-main-container position-relative mb-3">
                         <div class="avatar-main-preview shadow-lg">
-                            <img src="https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee" alt="Avatar Seleccionado" id="avatarImage">
+                            <img src="<%= defaultAvatarUrl %>" alt="Avatar Seleccionado" id="avatarImage">
                         </div>
                         <div class="avatar-checked-badge">
                             <i class="fas fa-check"></i>
@@ -61,8 +68,6 @@
                         <div class="avatar-grid-selection p-3" id="avatarOptionsContainer">
                         </div>
                     </div>
-
-                    <input type="hidden" name="avatarUrl" id="avatarUrl" value="https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee">
                 </div>
 
                 <%-- Alerta de error si el registro falla (Opcional, manejado por el Servlet) --%>
@@ -74,7 +79,7 @@
 
                 <form id="signup-form" action="${pageContext.request.contextPath}/RegistroServlet" method="POST">
 
-                    <input type="hidden" id="avatarUrl" name="avatarUrl">
+                    <input type="hidden" id="avatarUrl" name="avatarUrl" value="<%= defaultAvatarUrl %>">
 
                     <div class="mb-4">
                         <label for="signupName" class="form-label text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Nombre completo</label>
@@ -145,6 +150,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/script.js"></script>
+<script src="../js/utils/avatar-picker.js"></script>
 <script type="module">
     import { initAvatarGenerator } from '../js/utils/avatar.js';
     import { initSignupValidation } from '../js/utils/signup.js';
@@ -158,20 +164,26 @@
     // Script para alternar tema claro/oscuro
     document.addEventListener('DOMContentLoaded', function() {
         const html = document.documentElement;
-        const btn = document.getElementById('theme-toggle');
+        const btn = document.getElementById('auth-theme-toggle');
         const icon = document.getElementById('theme-icon');
+        const panel = document.querySelector('.auth-panel');
         // Cargar preferencia guardada
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            html.setAttribute('data-bs-theme', savedTheme);
-            icon.className = savedTheme === 'light' ? 'bi bi-brightness-high' : 'bi bi-moon-stars';
+        const applyTheme = (theme) => {
+            html.setAttribute('data-bs-theme', theme);
+            if (panel) {
+                panel.classList.toggle('bg-white', theme === 'light');
+            }
+            icon.className = theme === 'light' ? 'bi bi-brightness-high' : 'bi bi-moon-stars';
+        };
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+        if (btn) {
+            btn.addEventListener('click', function() {
+                const current = html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+                applyTheme(current);
+                localStorage.setItem('theme', current);
+            });
         }
-        btn.addEventListener('click', function() {
-            const current = html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-bs-theme', current);
-            localStorage.setItem('theme', current);
-            icon.className = current === 'light' ? 'bi bi-brightness-high' : 'bi bi-moon-stars';
-        });
     });
 </script>
 </body>

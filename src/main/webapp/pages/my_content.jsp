@@ -1,8 +1,12 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="true" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
 <%@ page import="io.github.josuevele77.movie_web.dao.CompraDAO" %>
 <%@ page import="java.util.List" %>
 <%
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     // Verificación de seguridad: Validar que el usuario esté logueado
     Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
     if (userSession == null) {
@@ -14,6 +18,10 @@
     CompraDAO compraDAO = new CompraDAO();
     List<String> peliculasCompradas = compraDAO.obtenerPelículasCompradasPorUsuario(userSession.getIdUs());
     int totalCompras = compraDAO.contarComprasPorUsuario(userSession.getIdUs());
+    String avatarUsuario = userSession.getAvatarUrl() != null ? userSession.getAvatarUrl().trim() : "";
+    String inicialUsuario = userSession.getNombreUs() != null && !userSession.getNombreUs().trim().isEmpty()
+            ? userSession.getNombreUs().trim().substring(0, 1).toUpperCase()
+            : "?";
 %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
@@ -107,7 +115,11 @@
         <div class="row align-items-center gy-4">
             <div class="col-md-7 d-flex align-items-center gap-4">
                 <div class="user-profile-badge">
-                    <%= userSession.getNombreUs().substring(0, 1).toUpperCase() %>
+                    <% if (!avatarUsuario.isEmpty()) { %>
+                    <img src="<%= avatarUsuario %>" alt="Avatar de <%= userSession.getNombreUs() %>">
+                    <% } else { %>
+                    <%= inicialUsuario %>
+                    <% } %>
                 </div>
                 <div>
                     <h1 class="display-5 fw-bold mb-1">Hola, <%= userSession.getNombreUs() %></h1>
@@ -135,6 +147,11 @@
 </header>
 
 <main class="container px-4 px-lg-5 my-5">
+    <div class="d-flex justify-content-start mb-4">
+        <a href="<%=request.getContextPath()%>/index.jsp" class="btn btn-outline-light rounded-pill px-4 fw-bold">
+            <i class="bi bi-arrow-left me-2"></i>Volver
+        </a>
+    </div>
 
     <div class="d-flex gap-3 mb-5 catalog-tabs overflow-auto pb-2 border-bottom border-secondary border-opacity-25">
         <button class="streaming-tab active" onclick="location.href='my_content.jsp'">
@@ -143,17 +160,17 @@
         <button class="streaming-tab" onclick="location.href='favorites.jsp'">
             <i class="bi bi-heart-fill me-2"></i> Mi Lista
         </button>
-        <button class="streaming-tab" onclick="location.href='dashboard.jsp'">
+        <button class="streaming-tab" onclick="location.href='profile.jsp'">
             <i class="bi bi-person-badge-fill me-2"></i> Ajustes de Cuenta
         </button>
     </div>
 
     <h4 class="section-title fw-bold mb-4 d-flex align-items-center gap-2">
-        <i class="bi bi-clock-history text-warning"></i> Continuar Viendo
+        <i class="bi bi-play-circle-fill text-warning"></i> Empezar a ver la película que compraste
     </h4>
 
-    <div class="row g-4 mb-5">
-        <div class="col-6 col-md-4 col-lg-3">
+    <div class="row g-4 mb-5" id="start-watching-grid">
+        <div class="col-6 col-md-4 col-lg-3 d-none">
             <div class="movie-card catalog-panel">
                 <div class="position-relative">
                     <img src="<%=request.getContextPath()%>/img/fallback-poster.svg" alt="Película Alquilada">
@@ -245,6 +262,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         const libraryGrid = document.getElementById('library-grid');
         if (!libraryGrid) return;
+        const startWatchingGrid = document.getElementById('start-watching-grid');
 
         const existingIds = new Set(
             Array.from(libraryGrid.querySelectorAll('[data-movie-id]'))
@@ -260,6 +278,35 @@
 
         const IMG_URL = 'https://image.tmdb.org/t/p/w500';
         const FALLBACK_POSTER = '<%=request.getContextPath()%>/img/fallback-poster.svg';
+        const playId = new URLSearchParams(window.location.search).get('play');
+        const latestPurchase = storedPurchases.find(item => String(item.id) === String(playId)) || storedPurchases[0];
+
+        if (startWatchingGrid && latestPurchase && latestPurchase.id) {
+            const posterSrc = latestPurchase.posterPath ? `${IMG_URL}${latestPurchase.posterPath}` : FALLBACK_POSTER;
+            startWatchingGrid.innerHTML = `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="movie-card catalog-panel" data-start-movie-id="${latestPurchase.id}">
+                        <div class="position-relative">
+                            <img src="${posterSrc}" alt="${latestPurchase.title || 'PelÃ­cula'}" onerror="this.onerror=null;this.src='${FALLBACK_POSTER}'">
+                            <div class="position-absolute top-0 end-0 p-2 m-1">
+                                <span class="badge bg-success rounded-pill shadow-sm">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Lista para ver
+                                </span>
+                            </div>
+                        </div>
+                        <div class="movie-info">
+                            <h5 class="movie-title">${latestPurchase.title || 'PelÃ­cula'}</h5>
+                            <p class="movie-meta mb-1">Compra realizada correctamente</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <button class="btn btn-card-comprar w-100" onclick="openMovieDetail(${latestPurchase.id})">
+                                    <i class="bi bi-play-fill me-1 fs-5"></i> Empezar a ver
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
         storedPurchases.forEach(item => {
             const idStr = String(item.id);
@@ -294,6 +341,159 @@
             libraryGrid.appendChild(col);
             existingIds.add(idStr);
         });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const libraryGrid = document.getElementById('library-grid');
+        const startWatchingGrid = document.getElementById('start-watching-grid');
+        if (!libraryGrid || typeof buildApiUrl !== 'function') return;
+
+        const fallbackPoster = '<%=request.getContextPath()%>/img/fallback-poster.svg';
+        const storageKey = 'cinestore.purchases';
+
+        const readPurchases = () => {
+            try {
+                return JSON.parse(localStorage.getItem(storageKey) || '[]');
+            } catch (error) {
+                return [];
+            }
+        };
+
+        const savePurchases = (purchases) => {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(purchases));
+            } catch (error) {
+                console.warn('No se pudo guardar la biblioteca local:', error);
+            }
+        };
+
+        const posterSrc = (movie) => movie && movie.posterPath ? IMG_URL + movie.posterPath : fallbackPoster;
+
+        async function fetchMovie(movieId) {
+            if (!movieId) return null;
+            try {
+                const response = await fetch(buildApiUrl('/movie/' + encodeURIComponent(movieId)));
+                if (!response.ok) return null;
+                const movie = await response.json();
+                return {
+                    id: movie.id,
+                    title: movie.title || movie.name || 'Pelicula',
+                    posterPath: movie.poster_path || null,
+                    date: movie.release_date ? movie.release_date.split('-')[0] : 'N/D',
+                    rating: typeof movie.vote_average === 'number' ? movie.vote_average : null
+                };
+            } catch (error) {
+                console.warn('No se pudo cargar la pelicula comprada:', error);
+                return null;
+            }
+        }
+
+        function normalizePurchase(item) {
+            return {
+                id: item && item.id ? Number(item.id) : null,
+                title: item && item.title && item.title !== 'false' ? item.title : 'Pelicula',
+                posterPath: item && item.posterPath ? item.posterPath : null,
+                date: item && item.date ? item.date : 'N/D',
+                rating: item && item.rating ? item.rating : null
+            };
+        }
+
+        function updateCard(card, movie) {
+            if (!card || !movie) return;
+            const image = card.querySelector('img');
+            const title = card.querySelector('.movie-title');
+            if (image) {
+                image.src = posterSrc(movie);
+                image.alt = movie.title || 'Pelicula';
+                image.onerror = function () {
+                    this.onerror = null;
+                    this.src = fallbackPoster;
+                };
+            }
+            if (title) {
+                title.textContent = movie.title || 'Pelicula';
+            }
+        }
+
+        function startCard(movie) {
+            if (!startWatchingGrid || !movie || !movie.id) return;
+            startWatchingGrid.innerHTML = `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="movie-card catalog-panel" data-start-movie-id="${movie.id}">
+                        <div class="position-relative">
+                            <img src="${posterSrc(movie)}" alt="${movie.title || 'Pelicula'}" onerror="this.onerror=null;this.src='${fallbackPoster}'">
+                            <div class="position-absolute top-0 end-0 p-2 m-1">
+                                <span class="badge bg-success rounded-pill shadow-sm">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Lista para ver
+                                </span>
+                            </div>
+                        </div>
+                        <div class="movie-info">
+                            <h5 class="movie-title">${movie.title || 'Pelicula'}</h5>
+                            <p class="movie-meta mb-1">Compra realizada correctamente</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <button class="btn btn-card-comprar w-100" onclick="openMovieDetail(${movie.id})">
+                                    <i class="bi bi-play-fill me-1 fs-5"></i> Empezar a ver
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function addLibraryCard(movie) {
+            const id = String(movie.id);
+            if (!movie.id || libraryGrid.querySelector('[data-movie-id="' + id + '"]')) return;
+            const col = document.createElement('div');
+            col.className = 'col-6 col-md-4 col-lg-3';
+            col.innerHTML = `
+                <div class="movie-card catalog-panel" data-movie-id="${id}">
+                    <div class="position-relative">
+                        <img src="${posterSrc(movie)}" alt="${movie.title || 'Pelicula'}" onerror="this.onerror=null;this.src='${fallbackPoster}'">
+                        <div class="position-absolute top-0 end-0 p-2 m-1">
+                            <span class="badge bg-success rounded-pill shadow-sm">
+                                <i class="bi bi-check-circle-fill me-1"></i> Comprada
+                            </span>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <h5 class="movie-title">${movie.title || 'Pelicula'}</h5>
+                        <div class="movie-rating mb-2">
+                            <span class="movie-rating-text"><small class="text-muted">ID: ${id}</small></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <button class="btn btn-card-comprar w-100" onclick="openMovieDetail(${id})">
+                                <i class="bi bi-play-fill me-1 fs-5"></i> Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            libraryGrid.appendChild(col);
+        }
+
+        async function hydratePurchases() {
+            const stored = readPurchases().map(normalizePurchase).filter(item => item.id);
+            const hydrated = await Promise.all(stored.map(async item => {
+                if (item.posterPath && item.title && item.title !== 'false') return item;
+                return await fetchMovie(item.id) || item;
+            }));
+
+            savePurchases(hydrated);
+
+            const playId = new URLSearchParams(window.location.search).get('play');
+            const latest = hydrated.find(item => String(item.id) === String(playId)) || hydrated[0];
+            if (latest) startCard(latest);
+            hydrated.forEach(addLibraryCard);
+
+            const cards = Array.from(libraryGrid.querySelectorAll('[data-movie-id]'));
+            await Promise.all(cards.map(async card => {
+                const movie = await fetchMovie(card.getAttribute('data-movie-id'));
+                if (movie) updateCard(card, movie);
+            }));
+        }
+
+        hydratePurchases();
     });
 </script>
 </body>

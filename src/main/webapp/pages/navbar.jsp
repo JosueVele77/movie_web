@@ -67,7 +67,7 @@
 
                         <%-- Carga de Avatar o Inicial --%>
                         <% if (!avatarUsuario.isEmpty()) { %>
-                        <img src="<%= avatarUsuario %>" alt="Avatar" class="rounded-circle" style="width: 34px; height: 34px; object-fit: contain; background-color: rgba(255,255,255,0.05); border: 1px solid var(--accent-color);">
+                        <img src="<%= avatarUsuario %>" alt="Avatar" class="user-avatar-img">
                         <% } else { %>
                         <span class="user-avatar" aria-hidden="true"><%= inicialUsuario.isEmpty() ? "?" : inicialUsuario %></span>
                         <% } %>

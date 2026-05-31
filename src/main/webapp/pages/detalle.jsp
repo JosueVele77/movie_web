@@ -89,6 +89,14 @@
         #loading-state, #error-state {
             padding-top: 15vh;
         }
+
+        .trailer-frame {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: 0;
+            border-radius: 10px;
+            background: #000;
+        }
     </style>
 </head>
 <body>
@@ -138,8 +146,11 @@
                     <button type="button" class="btn btn-primary rounded-pill fw-bold py-2 btn-login" style="border:none;" id="btn-comprar-detalle">
                         <i class="bi bi-ticket-perforated me-2"></i> COMPRAR PELÍCULA
                     </button>
-                    <button class="btn btn-outline-light rounded-pill fw-bold py-2 border-secondary" style="color:var(--text-color);">
+                    <button type="button" class="btn btn-outline-light rounded-pill fw-bold py-2 border-secondary" style="color:var(--text-color);" id="btn-ver-trailer">
                         <i class="bi bi-play-circle me-2"></i> VER TRAILER
+                    </button>
+                    <button type="button" class="btn btn-outline-warning rounded-pill fw-bold py-2" id="btn-favorito-detalle">
+                        <i class="bi bi-heart me-2"></i> FAVORITO
                     </button>
                 </div>
             </div>
@@ -206,14 +217,25 @@
         }
 
         try {
-            // Escapando variables de la URL para que JSP no las procese
-            const movieResponse = await fetch(`\${BASE_URL}/movie/\${movieId}?api_key=\${API_KEY}&language=es-ES`);
-            const creditsResponse = await fetch(`\${BASE_URL}/movie/\${movieId}/credits?api_key=\${API_KEY}&language=es-ES`);
+            const movieResponse = await fetch(BASE_URL + '/movie/' + movieId + '?api_key=' + API_KEY + '&language=es-ES');
+            const creditsResponse = await fetch(BASE_URL + '/movie/' + movieId + '/credits?api_key=' + API_KEY + '&language=es-ES');
+            const videosResponse = await fetch(BASE_URL + '/movie/' + movieId + '/videos?api_key=' + API_KEY + '&language=es-ES');
 
             if (!movieResponse.ok) throw new Error('Movie not found');
 
             window.movieGlobal = await movieResponse.json();
             const credits = await creditsResponse.json();
+            const videos = videosResponse.ok ? await videosResponse.json() : { results: [] };
+            let trailer = Array.isArray(videos.results)
+                ? videos.results.find(video => video.site === 'YouTube' && video.type === 'Trailer')
+                : null;
+            if (!trailer) {
+                const fallbackVideosResponse = await fetch(BASE_URL + '/movie/' + movieId + '/videos?api_key=' + API_KEY + '&language=en-US');
+                const fallbackVideos = fallbackVideosResponse.ok ? await fallbackVideosResponse.json() : { results: [] };
+                trailer = Array.isArray(fallbackVideos.results)
+                    ? fallbackVideos.results.find(video => video.site === 'YouTube' && video.type === 'Trailer') || fallbackVideos.results.find(video => video.site === 'YouTube')
+                    : null;
+            }
 
             // Populate movie data (Escapando variables de imagen y runtime)
             const posterEl = document.getElementById('moviePoster');
@@ -223,7 +245,7 @@
             document.getElementById('movieTagline').textContent = window.movieGlobal.tagline || '';
             document.getElementById('movieRating').textContent = window.movieGlobal.vote_average ? window.movieGlobal.vote_average.toFixed(1) : 'N/A';
             document.getElementById('movieReleaseDate').textContent = new Date(window.movieGlobal.release_date).toLocaleDateString() || 'Desconocida';
-            document.getElementById('movieRuntime').textContent = window.movieGlobal.runtime ? `\${window.movieGlobal.runtime} min` : 'Desconocida';
+            document.getElementById('movieRuntime').textContent = window.movieGlobal.runtime ? window.movieGlobal.runtime + ' min' : 'Desconocida';
             document.getElementById('movieOverview').textContent = window.movieGlobal.overview || 'No hay sinopsis disponible.';
 
             // --- FONDO CINEMÁTICO ---
@@ -265,8 +287,56 @@
             const btnComprarDetalle = document.getElementById('btn-comprar-detalle');
             if (btnComprarDetalle) {
                 btnComprarDetalle.addEventListener('click', () => {
+                    if (localStorage.getItem('isLoggedIn') !== 'true') {
+                        window.location.href = 'login.jsp';
+                        return;
+                    }
                     if (window.movieGlobal && window.movieGlobal.id) {
-                        window.location.href = `compra.jsp?id=${window.movieGlobal.id}`;
+                        try {
+                            localStorage.setItem('lastMovieId', String(window.movieGlobal.id));
+                            localStorage.setItem('cinestore.pendingPurchase', JSON.stringify({
+                                id: window.movieGlobal.id,
+                                title: window.movieGlobal.title,
+                                posterPath: window.movieGlobal.poster_path || null,
+                                date: window.movieGlobal.release_date ? window.movieGlobal.release_date.split('-')[0] : 'N/D',
+                                rating: typeof window.movieGlobal.vote_average === 'number' ? window.movieGlobal.vote_average : null
+                            }));
+                        } catch (error) {
+                            console.warn('No se pudo guardar la pelicula pendiente:', error);
+                        }
+                        window.location.href = 'compra.jsp?id=' + encodeURIComponent(window.movieGlobal.id);
+                    }
+                });
+            }
+
+            const btnTrailer = document.getElementById('btn-ver-trailer');
+            if (btnTrailer) {
+                btnTrailer.addEventListener('click', () => {
+                    const trailerBody = document.getElementById('trailerModalBody');
+                    if (!trailer || !trailer.key) {
+                        trailerBody.innerHTML = '<div class="alert alert-warning mb-0"><i class="bi bi-exclamation-triangle me-2"></i>No se puede mostrar el trailer de esta pelicula.</div>';
+                    } else {
+                        trailerBody.innerHTML = '<iframe class="trailer-frame" src="https://www.youtube.com/embed/' + trailer.key + '?autoplay=1" title="Trailer" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+                    }
+                    const trailerModal = new bootstrap.Modal(document.getElementById('trailerModal'));
+                    trailerModal.show();
+                });
+            }
+
+            const btnFavoritoDetalle = document.getElementById('btn-favorito-detalle');
+            if (btnFavoritoDetalle) {
+                btnFavoritoDetalle.addEventListener('click', () => {
+                    const icon = btnFavoritoDetalle.querySelector('i');
+                    const movieData = {
+                        id: window.movieGlobal.id,
+                        title: window.movieGlobal.title,
+                        posterPath: window.movieGlobal.poster_path || null,
+                        date: window.movieGlobal.release_date ? window.movieGlobal.release_date.split('-')[0] : 'N/D',
+                        rating: typeof window.movieGlobal.vote_average === 'number' ? window.movieGlobal.vote_average : null
+                    };
+
+                    if (window.toggleFavorite) {
+                        window.toggleFavorite(icon, movieData);
                     }
                 });
             }
@@ -321,7 +391,7 @@
                         </div>
                         <div class="barcode mt-3 text-end" style="color: rgba(255,255,255,0.5);">
                             <i class="bi bi-upc-scan" style="font-size: 2.2rem;"></i>
-                            <span class="d-block small text-muted">ID:\${movie.id}</span>
+                            <span class="d-block small text-muted">ID:\${window.movieGlobal.id}</span>
                         </div>
                     </div>
                 `;
@@ -352,6 +422,21 @@
         }
     });
 </script>
+
+<!-- Modal de Trailer -->
+<div class="modal fade" id="trailerModal" tabindex="-1" aria-labelledby="trailerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold" id="trailerModalLabel">
+                    <i class="bi bi-play-circle me-2 text-warning"></i>Trailer
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="trailerModalBody"></div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal de Compra -->
 <div class="modal fade" id="modalCompra" tabindex="-1" aria-labelledby="modalCompraLabel" aria-hidden="true">
@@ -446,6 +531,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/script.js"></script>
 <script>
     // Validador de tarjeta y manejo de compra

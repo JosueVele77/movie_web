@@ -2,7 +2,7 @@ package io.github.josuevele77.movie_web.controller;
 
 import io.github.josuevele77.movie_web.dao.UsuarioDAO;
 import io.github.josuevele77.movie_web.model.Usuario;
-import io.github.josuevele77.movie_web.utils.CedulaValidator; // <-- Importación del validador
+import io.github.josuevele77.movie_web.utils.CedulaValidator;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,45 +13,55 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet(name = "RegistroServlet", value = "/RegistroServlet")
 public class RegistroServlet extends HttpServlet {
 
+    private static final String DEFAULT_AVATAR_URL =
+            "https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee";
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
 
-        // 1. Recibir los parámetros del formulario de registro.jsp
         String nombre = request.getParameter("nombre");
         String correo = request.getParameter("correo");
         String clave = request.getParameter("clave");
-        String cedula = request.getParameter("cedula"); // <-- Obtenemos la cédula
+        String cedula = request.getParameter("cedula");
         String avatarUrl = request.getParameter("avatarUrl");
+        String idEstParam = request.getParameter("id_est");
 
-        // 2. VALIDACIÓN EN EL BACKEND
-        // Verificamos matemáticamente que la cédula sea correcta usando la clase Utils
         if (!CedulaValidator.esValida(cedula)) {
-            // Si intentan enviar datos falsos evadiendo el JavaScript, los rebotamos
             response.sendRedirect(request.getContextPath() + "/pages/registro.jsp?error=cedula_invalida");
-            return; // <-- Return IMPORTANTÍSIMO para que no se siga ejecutando el código hacia abajo
+            return;
         }
 
-        // 3. Crear el objeto Usuario y setear los valores validados
+        int idEst = 1;
+        try {
+            if (idEstParam != null && !idEstParam.trim().isEmpty()) {
+                idEst = Integer.parseInt(idEstParam.trim());
+            }
+        } catch (NumberFormatException ignored) {
+            idEst = 1;
+        }
+
+        if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+            avatarUrl = DEFAULT_AVATAR_URL;
+        }
+
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setNombreUs(nombre);
         nuevoUsuario.setCorreoUs(correo);
         nuevoUsuario.setClaveUs(clave);
-        nuevoUsuario.setCedulaUs(cedula); // <-- Guardamos la cédula real y ya validada
-        nuevoUsuario.setIdEst(1);         // Asumiendo que '1' es un ID válido en tu tabla tb_estado_civil
-        nuevoUsuario.setAvatarUrl(avatarUrl);
+        nuevoUsuario.setCedulaUs(cedula);
+        nuevoUsuario.setIdEst(idEst);
+        nuevoUsuario.setAvatarUrl(avatarUrl.trim());
         nuevoUsuario.setIdPer(3);
 
-        // 4. Llamar al DAO para guardar en la base de datos
         UsuarioDAO dao = new UsuarioDAO();
         boolean registrado = dao.registrar(nuevoUsuario);
 
-        // 5. Validar la inserción en BD y redirigir
         if (registrado) {
-            // Si el registro es exitoso, redirigimos a la página de inicio
-            request.getSession().setAttribute("usuarioLogueado", nuevoUsuario);
+            Usuario usuarioRegistrado = dao.login(correo.trim(), clave.trim());
+            request.getSession().setAttribute("usuarioLogueado", usuarioRegistrado != null ? usuarioRegistrado : nuevoUsuario);
             response.sendRedirect(request.getContextPath() + "/index.jsp");
         } else {
-            // Si falla en la BD (por ejemplo, el correo o cédula ya existen y son UNIQUE), mostramos error
             response.sendRedirect(request.getContextPath() + "/pages/registro.jsp?error=true");
         }
     }

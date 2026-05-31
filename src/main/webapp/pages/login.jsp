@@ -21,6 +21,9 @@
 <body>
 <div id="stars-container"></div>
 <div class="planet"></div>
+<a href="../index.jsp" class="auth-home-logo" aria-label="Ir al inicio">
+    <img src="../img/logo-cinestore.svg" alt="CineStore">
+</a>
 
 <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
     <div class="card shadow-lg border-0 overflow-hidden w-100 custom-modal" style="max-width: 1000px; border-radius: 20px; min-height: 550px;">
@@ -35,8 +38,8 @@
                 </div>
             </div>
 
-            <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center bg-white position-relative" data-bs-theme="light">
-                <button id="theme-toggle" class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-3" title="Cambiar tema" aria-label="Cambiar tema">
+            <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center bg-white position-relative auth-panel">
+                <button id="auth-theme-toggle" class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-3" title="Cambiar tema" aria-label="Cambiar tema">
                     <i class="bi bi-moon-stars" id="theme-icon"></i>
                 </button>
 
@@ -118,20 +121,26 @@
 
         // Script para alternar tema claro/oscuro
         const html = document.documentElement;
-        const btn = document.getElementById('theme-toggle');
+        const btn = document.getElementById('auth-theme-toggle');
         const icon = document.getElementById('theme-icon');
+        const panel = document.querySelector('.auth-panel');
         // Cargar preferencia guardada (mantener tema)
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            html.setAttribute('data-bs-theme', savedTheme);
-            icon.className = savedTheme === 'light' ? 'bi bi-brightness-high' : 'bi bi-moon-stars';
+        const applyTheme = (theme) => {
+            html.setAttribute('data-bs-theme', theme);
+            if (panel) {
+                panel.classList.toggle('bg-white', theme === 'light');
+            }
+            icon.className = theme === 'light' ? 'bi bi-brightness-high' : 'bi bi-moon-stars';
+        };
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+        if (btn) {
+            btn.addEventListener('click', function() {
+                const current = html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+                applyTheme(current);
+                localStorage.setItem('theme', current);
+            });
         }
-        btn.addEventListener('click', function() {
-            const current = html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-bs-theme', current);
-            localStorage.setItem('theme', current);
-            icon.className = current === 'light' ? 'bi bi-brightness-high' : 'bi bi-moon-stars';
-        });
     });
 </script>
 </body>

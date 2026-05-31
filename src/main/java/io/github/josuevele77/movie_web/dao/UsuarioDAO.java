@@ -75,7 +75,7 @@ public class UsuarioDAO {
 
     // Método para actualizar los datos personales del perfil del cliente
     public boolean actualizarPerfil(Usuario u) {
-        String sql = "UPDATE public.tb_usuario SET nombre_us = ?, cedula_us = ?, correo_us = ?, clave_us = ? WHERE id_us = ?";
+        String sql = "UPDATE public.tb_usuario SET nombre_us = ?, cedula_us = ?, correo_us = ?, clave_us = ?, avatar_url = ? WHERE id_us = ?";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -83,7 +83,8 @@ public class UsuarioDAO {
             ps.setString(2, u.getCedulaUs());
             ps.setString(3, u.getCorreoUs());
             ps.setString(4, u.getClaveUs());
-            ps.setInt(5, u.getIdUs());
+            ps.setString(5, u.getAvatarUrl());
+            ps.setInt(6, u.getIdUs());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {

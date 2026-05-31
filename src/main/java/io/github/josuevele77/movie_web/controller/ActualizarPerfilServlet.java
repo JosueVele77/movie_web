@@ -28,6 +28,7 @@ public class ActualizarPerfilServlet extends HttpServlet {
         String correo = request.getParameter("correo");
         String clave = request.getParameter("clave");
         String cedula = request.getParameter("cedula");
+        String avatarUrl = request.getParameter("avatarUrl");
 
         // Validación Blindada en Servidor
         if (!CedulaValidator.esValida(cedula)) {
@@ -40,6 +41,9 @@ public class ActualizarPerfilServlet extends HttpServlet {
         usuarioActual.setCorreoUs(correo);
         usuarioActual.setClaveUs(clave);
         usuarioActual.setCedulaUs(cedula);
+        if (avatarUrl != null && !avatarUrl.trim().isEmpty()) {
+            usuarioActual.setAvatarUrl(avatarUrl.trim());
+        }
 
         UsuarioDAO dao = new UsuarioDAO();
         boolean actualizado = dao.actualizarPerfil(usuarioActual);

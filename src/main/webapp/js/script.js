@@ -127,6 +127,10 @@ function getPagesBase() {
     return window.location.pathname.includes('/pages/') ? '' : 'pages/';
 }
 
+function getCheckoutPath(movieId) {
+    return `${getPagesBase()}compra.jsp?id=${encodeURIComponent(movieId)}`;
+}
+
 async function loadFavorites() {
     try {
         const apiRoot = window.location.pathname.includes('/pages/') ? '..' : '.';
@@ -360,10 +364,11 @@ function populateCategoriesDropdown(genres) {
 }
 
 async function fetchAndRenderCarousel() {
+    const carouselElement = document.getElementById('mainMovieCarousel');
     const carouselInner = document.getElementById('carousel-inner-content');
-    const carouselIndicators = document.querySelector('.carousel-indicators');
+    const carouselIndicators = carouselElement ? carouselElement.querySelector('.carousel-indicators') : null;
 
-    if (!carouselInner || !carouselIndicators) return;
+    if (!carouselElement || !carouselInner || !carouselIndicators) return;
 
     try {
         const response = await fetch(buildApiUrl('/trending/movie/week'));
@@ -377,6 +382,13 @@ async function fetchAndRenderCarousel() {
 
         movies.forEach((movie, index) => {
             const isActive = index === 0 ? 'active' : '';
+            const purchaseData = JSON.stringify({
+                id: movie.id,
+                title: movie.title,
+                posterPath: movie.poster_path || null,
+                date: movie.release_date ? movie.release_date.split('-')[0] : 'N/D',
+                rating: typeof movie.vote_average === 'number' ? movie.vote_average : null
+            }).replace(/'/g, '&#39;');
             const overview = movie.overview ? (movie.overview.substring(0, 150) + '...') : 'Disfruta de esta increíble película en CineStore.';
 
             const indicator = document.createElement('button');
@@ -399,13 +411,67 @@ async function fetchAndRenderCarousel() {
                     <p class="lead mb-4 text-white">${overview}</p>
                     <div class="d-flex gap-3">
                         <button class="btn btn-outline-light rounded-pill px-4 py-2" onclick="openMovieDetail(${movie.id})">VER DETALLES</button>
-                        <button class="btn btn-primary rounded-pill px-4 py-2">COMPRAR ENTRADAS</button>
+                        <button class="btn btn-primary rounded-pill px-4 py-2" onclick='event.stopPropagation(); purchaseMovie(${purchaseData})'>COMPRAR ENTRADAS</button>
                     </div>
                 </div>
             `;
             carouselInner.appendChild(carouselItem);
         });
 
+        const items = Array.from(carouselInner.querySelectorAll('.carousel-item'));
+        const indicators = Array.from(carouselIndicators.querySelectorAll('button'));
+        const showSlide = (nextIndex) => {
+            if (!items.length) return;
+            const index = (nextIndex + items.length) % items.length;
+            items.forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === index));
+            indicators.forEach((indicator, itemIndex) => {
+                indicator.classList.toggle('active', itemIndex === index);
+                if (itemIndex === index) {
+                    indicator.setAttribute('aria-current', 'true');
+                } else {
+                    indicator.removeAttribute('aria-current');
+                }
+            });
+            carouselElement.dataset.activeIndex = String(index);
+        };
+        const moveSlide = (direction) => {
+            const currentIndex = Number(carouselElement.dataset.activeIndex || '0');
+            showSlide(currentIndex + direction);
+        };
+
+        carouselElement.dataset.activeIndex = '0';
+        indicators.forEach((indicator, index) => {
+            indicator.onclick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                showSlide(index);
+            };
+        });
+
+        const previousButton = carouselElement.querySelector('.carousel-control-prev');
+        const nextButton = carouselElement.querySelector('.carousel-control-next');
+        if (previousButton) {
+            previousButton.onclick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                moveSlide(-1);
+            };
+        }
+        if (nextButton) {
+            nextButton.onclick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                moveSlide(1);
+            };
+        }
+
+        window.clearInterval(window.cinestoreCarouselTimer);
+        window.cinestoreCarouselTimer = window.setInterval(() => moveSlide(1), 5000);
+
+        if (window.bootstrap && window.bootstrap.Carousel) {
+            const currentCarousel = window.bootstrap.Carousel.getInstance(carouselElement);
+            if (currentCarousel) currentCarousel.dispose();
+        }
     } catch (error) {
         console.error('Error fetching carousel movies:', error);
     }
@@ -629,13 +695,18 @@ function toggleFavorite(icon, movieData) {
 
 function purchaseMovie(movieData) {
     if (!state.isLoggedIn) {
-        showAuthRequiredModal('comprar esta película');
+        window.location.href = `${getPagesBase()}login.jsp`;
         return;
     }
 
-    const pagesBase = getPagesBase();
     if (movieData && Number.isFinite(Number(movieData.id))) {
-        window.location.href = `${pagesBase}compra.jsp?id=${movieData.id}`;
+        try {
+            localStorage.setItem('lastMovieId', String(movieData.id));
+            localStorage.setItem('cinestore.pendingPurchase', JSON.stringify(movieData));
+        } catch (error) {
+            console.warn('No se pudo guardar la pelicula pendiente:', error);
+        }
+        window.location.href = getCheckoutPath(movieData.id);
     }
 }
 

@@ -26,7 +26,7 @@ public class LogoutServlet extends HttpServlet {
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
 
-        // Redirigimos al usuario a la pantalla de Login después de borrar su sesión
-        response.sendRedirect(request.getContextPath() + "/pages/login.jsp");
+        // Redirigimos al usuario al apartado principal después de borrar su sesión
+        response.sendRedirect(request.getContextPath() + "/index.jsp");
     }
 }

@@ -2,6 +2,10 @@
 <%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
 <%@ page import="io.github.josuevele77.movie_web.utils.CedulaValidator" %>
 <%
+  response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response.setHeader("Pragma", "no-cache");
+  response.setDateHeader("Expires", 0);
+
   Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
   if (userSession == null) {
     response.sendRedirect("login.jsp");
@@ -13,6 +17,11 @@
   if (userSession.getCedulaUs() != null && !userSession.getCedulaUs().trim().isEmpty()) {
     provinciaInicial = CedulaValidator.obtenerProvincia(userSession.getCedulaUs());
   }
+
+  String defaultAvatarUrl = "https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee";
+  String avatarActual = userSession.getAvatarUrl() != null && !userSession.getAvatarUrl().trim().isEmpty()
+          ? userSession.getAvatarUrl().trim()
+          : defaultAvatarUrl;
 %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
@@ -26,6 +35,12 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
   <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
+  <script>
+    const savedProfileTheme = localStorage.getItem('theme');
+    if (savedProfileTheme) {
+      document.documentElement.setAttribute('data-bs-theme', savedProfileTheme);
+    }
+  </script>
 
   <style>
     .profile-card {
@@ -54,7 +69,7 @@
     .password-toggle { cursor: pointer; }
   </style>
 </head>
-<body class="catalog-page">
+<body class="catalog-page profile-page">
 
 <div id="stars-container"></div>
 <div class="planet"></div>
@@ -66,10 +81,10 @@
     <div class="col-lg-10">
 
       <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="my_content.jsp" class="btn btn-outline-secondary rounded-circle px-2 py-1">
+        <a href="<%=request.getContextPath()%>/index.jsp" class="btn btn-outline-secondary rounded-circle px-2 py-1">
           <i class="bi bi-arrow-left"></i>
         </a>
-        <h2 class="fw-bold m-0 text-white">Gestionar mi Cuenta</h2>
+        <h2 class="fw-bold m-0 profile-title">Gestionar mi Cuenta</h2>
       </div>
 
       <% if (request.getParameter("success") != null) { %>
@@ -97,7 +112,7 @@
 
               <div class="avatar-main-container position-relative mb-3">
                 <div class="avatar-main-preview shadow-lg">
-                  <img src="https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee" alt="Avatar" id="avatarImage">
+                  <img src="<%= avatarActual %>" alt="Avatar" id="avatarImage">
                 </div>
                 <div class="avatar-checked-badge"><i class="fas fa-check"></i></div>
               </div>
@@ -110,7 +125,7 @@
                 <div class="avatar-grid-selection p-3" id="avatarOptionsContainer"></div>
               </div>
 
-              <input type="hidden" name="avatarUrl" id="avatarUrl" value="https://images.avataranimals.com/animals/transparent/albatross.webp?v=a60026c088dc0dee">
+              <input type="hidden" name="avatarUrl" id="avatarUrl" value="<%= avatarActual %>">
             </div>
 
             <div class="col-md-8">
@@ -215,6 +230,8 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/utils/avatar-picker.js"></script>
+<script src="<%=request.getContextPath()%>/js/script.js"></script>
 <script type="module" src="<%=request.getContextPath()%>/js/utils/profile.js"></script>
 </body>
 </html>

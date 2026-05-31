@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="true" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
 <%
     Usuario userSession = (Usuario) session.getAttribute("usuarioLogueado");
@@ -69,6 +69,11 @@
             color: #fff;
             box-shadow: 0 0 0 2px rgba(241, 179, 78, 0.25);
         }
+
+        .card-brand-preview.is-detected {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.35);
+        }
     </style>
 </head>
 <body class="catalog-page">
@@ -80,8 +85,13 @@
         <a class="navbar-brand d-flex align-items-center gap-2" href="<%= request.getContextPath() %>/index.jsp">
             <img src="<%= request.getContextPath() %>/img/logo-cinestore.svg" alt="CineStore" style="width: 50px; height: 50px; object-fit: contain;">
         </a>
-        <span class="navbar-text text-light ms-auto me-auto">Finalizar Compra</span>
+        <span class="navbar-text text-light ms-auto me-auto checkout-nav-title">Finalizar Compra</span>
         <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item me-3">
+                <button id="theme-toggle" class="btn btn-outline-secondary rounded-circle theme-btn" aria-label="Cambiar tema">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </li>
             <li class="nav-item">
                 <button class="btn btn-outline-light rounded-pill px-4" data-action="go-back" data-fallback="../index.jsp">
                     <i class="bi bi-arrow-left me-2"></i>Volver
@@ -105,7 +115,7 @@
             <div class="checkout-card p-4">
                 <h3 class="fw-bold mb-4"><i class="bi bi-credit-card me-2"></i>Pago con tarjeta</h3>
                 <div id="checkout-message"></div>
-                <form id="checkout-form" novalidate>
+                <form id="checkout-form" action="javascript:void(0)" onsubmit="return false;" novalidate>
                     <div class="mb-3">
                         <label class="form-label text-muted">Titular de la tarjeta</label>
                         <input type="text" class="form-control" id="inputTitular" placeholder="NOMBRE APELLIDO" maxlength="50" required>
@@ -121,13 +131,6 @@
                                 <i class="fa-regular fa-credit-card"></i>
                                 <span class="brand-label">Tarjeta</span>
                             </span>
-                        </div>
-                        <small class="text-muted d-block mt-2">No necesitas seleccionar, detectamos la tarjeta al escribir.</small>
-                        <div class="d-flex flex-wrap gap-2 mt-3">
-                            <span class="card-brand" data-brand="visa"><i class="fab fa-cc-visa"></i> Visa</span>
-                            <span class="card-brand" data-brand="mastercard"><i class="fab fa-cc-mastercard"></i> Mastercard</span>
-                            <span class="card-brand" data-brand="amex"><i class="fab fa-cc-amex"></i> Amex</span>
-                            <span class="card-brand" data-brand="discover"><i class="fab fa-cc-discover"></i> Discover</span>
                         </div>
                     </div>
                     <div class="row">
@@ -166,14 +169,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/script.js"></script>
-<script>
-    const API_KEY = 'e8351fedf872a5de8e6614d8f166a260';
-    const BASE_URL = 'https://api.themoviedb.org/3';
-    const IMG_URL_W500 = 'https://image.tmdb.org/t/p/w500';
+<script type="application/json" id="checkoutLegacyScript">
+(() => {
+    const CHECKOUT_API_KEY = 'e8351fedf872a5de8e6614d8f166a260';
+    const CHECKOUT_BASE_URL = 'https://api.themoviedb.org/3';
+    const CHECKOUT_IMG_URL_W500 = 'https://image.tmdb.org/t/p/w500';
     const FALLBACK_POSTER_URL = '<%= request.getContextPath() %>/img/fallback-poster.svg';
 
     const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get('id');
+    let pendingPurchase = null;
+    try {
+        pendingPurchase = JSON.parse(localStorage.getItem('cinestore.pendingPurchase') || 'null');
+    } catch (error) {
+        pendingPurchase = null;
+    }
+
+    const movieId = urlParams.get('id') || pendingPurchase?.id || localStorage.getItem('lastMovieId');
+    if (!urlParams.get('id') && movieId) {
+        window.history.replaceState(null, '', `compra.jsp?id=${encodeURIComponent(movieId)}`);
+    }
     const movieSummary = document.getElementById('movie-summary');
     const checkoutMessage = document.getElementById('checkout-message');
     const checkoutForm = document.getElementById('checkout-form');
@@ -239,7 +253,7 @@
         const icon = cardBrandPreview.querySelector('i');
         const label = cardBrandPreview.querySelector('.brand-label');
         if (!cardType || !brandConfig[cardType]) {
-            cardBrandPreview.classList.remove('is-valid');
+            cardBrandPreview.classList.remove('is-valid', 'is-detected');
             if (icon) icon.className = 'fa-regular fa-credit-card';
             if (label) label.textContent = 'Tarjeta';
             return;
@@ -247,6 +261,7 @@
         const config = brandConfig[cardType];
         if (icon) icon.className = config.icon;
         if (label) label.textContent = config.label;
+        cardBrandPreview.classList.add('is-detected');
         cardBrandPreview.classList.toggle('is-valid', Boolean(isValid));
     }
 
@@ -271,6 +286,65 @@
         }
     }
 
+    async function cargarPelicula() {
+        if (!movieId) {
+            movieSummary.innerHTML = `
+                <i class="bi bi-exclamation-circle fs-1 text-warning d-block mb-3"></i>
+                <h5 class="mb-2">Pelicula no encontrada</h5>
+                <p class="text-muted mb-0">Vuelve al catalogo y selecciona una pelicula.</p>
+            `;
+            return;
+        }
+
+        try {
+            const response = await fetch(`${CHECKOUT_BASE_URL}/movie/${movieId}?api_key=${CHECKOUT_API_KEY}&language=es-ES`);
+            if (!response.ok) throw new Error('No se pudo cargar la pelicula');
+
+            movieData = await response.json();
+            moviePrice = (9.99 + Math.min(8, Math.max(0, movieData.vote_average || 0))).toFixed(2);
+            const posterSrc = movieData.poster_path ? `${CHECKOUT_IMG_URL_W500}${movieData.poster_path}` : FALLBACK_POSTER_URL;
+            const year = movieData.release_date ? movieData.release_date.split('-')[0] : 'N/D';
+            const rating = typeof movieData.vote_average === 'number' ? movieData.vote_average.toFixed(1) : 'N/D';
+
+            movieSummary.innerHTML = `
+                <img class="checkout-poster mb-3" src="${posterSrc}" alt="${movieData.title || 'Pelicula'}" onerror="this.onerror=null;this.src='${FALLBACK_POSTER_URL}'">
+                <h4 class="fw-bold mb-2">${movieData.title || 'Pelicula'}</h4>
+                <p class="text-muted small mb-3">${year} &middot; Rating ${rating}</p>
+                <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-3">
+                    <span class="text-muted">Total</span>
+                    <strong class="fs-4 text-warning">$${moviePrice}</strong>
+                </div>
+            `;
+        } catch (error) {
+            console.error(error);
+            if (pendingPurchase && String(pendingPurchase.id) === String(movieId)) {
+                movieData = {
+                    id: pendingPurchase.id,
+                    title: pendingPurchase.title || 'Pelicula',
+                    poster_path: pendingPurchase.posterPath || null,
+                    release_date: pendingPurchase.date ? `${pendingPurchase.date}-01-01` : ''
+                };
+                moviePrice = '12.99';
+                const posterSrc = pendingPurchase.posterPath ? `${CHECKOUT_IMG_URL_W500}${pendingPurchase.posterPath}` : FALLBACK_POSTER_URL;
+                movieSummary.innerHTML = `
+                    <img class="checkout-poster mb-3" src="${posterSrc}" alt="${movieData.title}" onerror="this.onerror=null;this.src='${FALLBACK_POSTER_URL}'">
+                    <h4 class="fw-bold mb-2">${movieData.title}</h4>
+                    <p class="text-muted small mb-3">${pendingPurchase.date || 'N/D'}</p>
+                    <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-3">
+                        <span class="text-muted">Total</span>
+                        <strong class="fs-4 text-warning">$${moviePrice}</strong>
+                    </div>
+                `;
+                return;
+            }
+            movieSummary.innerHTML = `
+                <i class="bi bi-wifi-off fs-1 text-danger d-block mb-3"></i>
+                <h5 class="mb-2">No se pudo cargar la pelicula</h5>
+                <p class="text-muted mb-0">Intenta volver a abrir la compra desde el catalogo.</p>
+            `;
+        }
+    }
+
     document.getElementById('inputNumeroTarjeta').addEventListener('input', (event) => {
         const input = event.target;
         const clean = input.value.replace(/\D/g, '');
@@ -278,10 +352,8 @@
 
         const cardType = detectarTipoTarjeta(clean);
         const info = document.getElementById('cardTypeInfo');
-        const badges = document.querySelectorAll('.card-brand');
         const isValid = cardType ? validarTarjeta(clean) : false;
 
-        badges.forEach(badge => badge.classList.toggle('active', badge.dataset.brand === cardType));
         if (cardType) {
             const label = brandConfig[cardType]?.label || cardType.toUpperCase();
             info.textContent = isValid ? `Tarjeta ${label} validada` : `Detectada: ${label}`;
@@ -344,9 +416,12 @@
             const data = await response.json();
             if (data.success) {
                 guardarCompraLocal(movieData);
-                setMessage('success', 'Compra realizada correctamente. Ya puedes verla en tu biblioteca.');
+                setMessage('success', 'Compra realizada correctamente. Te llevamos a Mi Contenido.');
                 checkoutForm.classList.add('d-none');
                 checkoutSuccess.classList.remove('d-none');
+                setTimeout(() => {
+                    window.location.href = '<%= request.getContextPath() %>/pages/my_content.jsp?play=' + encodeURIComponent(movieData.id);
+                }, 1400);
             } else {
                 setMessage('danger', data.message || 'No se pudo completar la compra.');
             }
@@ -360,6 +435,8 @@
     });
 
     cargarPelicula();
+}());
 </script>
+<script src="../js/utils/checkout.js"></script>
 </body>
 </html>
