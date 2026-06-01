@@ -105,8 +105,8 @@
         <a href="https://www.facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="https://www.instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         <a href="https://x.com" target="_blank" aria-label="X"><i class="bi bi-twitter-x"></i></a>
-        <a href="https://www.linkedin.com" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.github.com" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/josue-samuel-vele-asifuela-82342a405/" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://github.com/JosueVele77" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
     </div>
     <div class="map-container">
         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.817284889395!2d-78.4897896852463!3d-0.18659999999999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d59a6a3b5e3b5f%3A0x3b5e3b5f3b5e3b5f!2sAv.%20de%20la%20Carolina%2C%20Quito!5e0!3m2!1ses!2sec!4v1622607335911!5m2!1ses!2sec" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>

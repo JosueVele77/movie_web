@@ -45,54 +45,62 @@
 </header>
 
 <main class="container py-5">
-    <!-- PRIMER BLOQUE: DVD/Game Case (Actualizado a 960x720 y Autoplay) -->
+    <!-- PRIMER BLOQUE: God of War -->
     <div class="mb-5">
-        <h2 class="text-center mb-3">DVD/Game Case</h2>
+        <h2 class="text-center mb-3">God of War</h2>
         <div class="d-flex justify-content-center mb-2">
             <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
         </div>
         <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-            <iframe title="DVD/Game Case" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="960" height="720" src="https://sketchfab.com/models/d5c542e24bee490fbdf130413983f124/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_hint=0&ui_theme=dark&autoplay=1"> </iframe>
+            <iframe title="God of War" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="960" height="720" src="https://sketchfab.com/models/d5c542e24bee490fbdf130413983f124/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_hint=0&ui_theme=dark&autoplay=1"> </iframe>
         </div>
     </div>
 
-    <!-- SEGUNDO BLOQUE: Dvd Case (Se mantiene intacto) -->
+    <!-- SEGUNDO BLOQUE: Resident Evil 4 -->
     <div>
-        <h2 class="text-center mb-3">Dvd Case</h2>
+        <h2 class="text-center mb-3">Resident Evil 4</h2>
         <div class="d-flex justify-content-center mb-2">
             <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
         </div>
         <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-            <iframe title="Dvd Case" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/7c3e9934a24e4884b923c0ebbb7af547/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+            <iframe title="Resident Evil 4" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/7c3e9934a24e4884b923c0ebbb7af547/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
         </div>
     </div>
+
+    <!-- TERCER BLOQUE: Mortal Kombat Armageddon -->
     <div class="mt-5">
-        <h2 class="text-center mb-3">DVD/PS2/Wii case</h2>
+        <h2 class="text-center mb-3">Mortal Kombat Armageddon</h2>
         <div class="d-flex justify-content-center mb-2">
             <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
         </div>
         <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-            <iframe title="DVD/PS2/Wii case" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/60c2e703f9764cd6885811452802b3aa/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+            <iframe title="Mortal Kombat Armageddon" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/60c2e703f9764cd6885811452802b3aa/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
         </div>
     </div>
+
+    <!-- CUARTO BLOQUE: Shrek -->
     <div class="mt-5">
-        <h2 class="text-center mb-3">Shrek DVD</h2>
+        <h2 class="text-center mb-3">Shrek</h2>
         <div class="d-flex justify-content-center mb-2">
             <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
         </div>
         <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-            <iframe title="Shrek DVD" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/4c5613eba422484b904988ae1144a2fb/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+            <iframe title="Shrek" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/4c5613eba422484b904988ae1144a2fb/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
         </div>
     </div>
+
+    <!-- QUINTO BLOQUE: Chaos -->
     <div class="mt-5">
-        <h2 class="text-center mb-3">Boitier DVD de 14 mm</h2>
+        <h2 class="text-center mb-3">CHAOS</h2>
         <div class="d-flex justify-content-center mb-2">
             <a href="compra.jsp" class="btn btn-success btn-lg">Comprar</a>
         </div>
         <div class="sketchfab-embed-wrapper d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-            <iframe title="Boitier DVD de 14 mm" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/dcf043918a354680ad4ad86a5d2af4ae/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
+            <iframe title="CHAOS" frameborder="0" allowfullscreen allow="autoplay; fullscreen" width="960" height="720" src="https://sketchfab.com/models/dcf043918a354680ad4ad86a5d2af4ae/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_theme=dark"></iframe>
         </div>
     </div>
+
+    <!-- SEXTO BLOQUE: Harry Potter -->
     <div class="mt-5">
         <h2 class="text-center mb-3">Harry Potter - movie collection</h2>
         <div class="d-flex justify-content-center mb-2">
