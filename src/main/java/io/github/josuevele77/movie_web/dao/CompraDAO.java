@@ -133,6 +133,10 @@ public class CompraDAO {
         return peliculas;
     }
 
+    public List<String> obtenerPeliculasCompradasPorUsuario(int idUsuario) {
+        return obtenerPelículasCompradasPorUsuario(idUsuario);
+    }
+
     /**
      * Cuenta total de compras de un usuario
      */

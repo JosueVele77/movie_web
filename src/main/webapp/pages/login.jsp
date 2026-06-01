@@ -80,7 +80,10 @@
                         <label class="form-label small fw-bold text-uppercase text-secondary mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Contraseña</label>
                         <div class="input-group border-bottom border-2">
                             <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-lock text-muted fs-5"></i></span>
-                            <input type="password" name="clave" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" placeholder="Tu contraseña" required>
+                            <input type="password" name="clave" id="loginPassword" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" placeholder="Tu contraseña" required>
+                            <button type="button" class="input-group-text bg-transparent border-0 py-2 password-visibility-toggle" data-password-toggle="loginPassword" aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>
                     </div>
 

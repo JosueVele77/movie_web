@@ -85,6 +85,19 @@ if (window.location.pathname.includes('login.jsp')) {
     }
 }
 
+document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.passwordToggle);
+        const icon = button.querySelector('i');
+        if (!input || !icon) return;
+
+        const showPassword = input.type === 'password';
+        input.type = showPassword ? 'text' : 'password';
+        icon.className = showPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+        button.setAttribute('aria-label', showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+});
+
 // --- General Functions ---
 function openMovieDetail(movieId) {
     const evt = window.event;
@@ -411,7 +424,7 @@ async function fetchAndRenderCarousel() {
                     <p class="lead mb-4 text-white">${overview}</p>
                     <div class="d-flex gap-3">
                         <button class="btn btn-outline-light rounded-pill px-4 py-2" onclick="openMovieDetail(${movie.id})">VER DETALLES</button>
-                        <button class="btn btn-primary rounded-pill px-4 py-2" onclick='event.stopPropagation(); purchaseMovie(${purchaseData})'>COMPRAR ENTRADAS</button>
+                        <button class="btn btn-primary rounded-pill px-4 py-2" onclick='event.stopPropagation(); purchaseMovie(${purchaseData})'>COMPRAR PELICULA</button>
                     </div>
                 </div>
             `;

@@ -52,6 +52,14 @@
             margin-right: 10px;
             margin-bottom: 10px;
             display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .genre-badge:hover {
+            color: #000;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.18);
         }
 
         .cast-card {
@@ -259,8 +267,9 @@
             const genresContainer = document.getElementById('movieGenres');
             if (window.movieGlobal.genres && window.movieGlobal.genres.length > 0) {
                 window.movieGlobal.genres.forEach(genre => {
-                    const badge = document.createElement('span');
+                    const badge = document.createElement('a');
                     badge.className = 'genre-badge';
+                    badge.href = 'category.jsp?id=' + encodeURIComponent(genre.id) + '&name=' + encodeURIComponent(genre.name);
                     badge.textContent = genre.name;
                     genresContainer.appendChild(badge);
                 });

@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="io.github.josuevele77.movie_web.model.Usuario" %>
 <%@ page import="io.github.josuevele77.movie_web.utils.CedulaValidator" %>
+<%@ page import="io.github.josuevele77.movie_web.dao.CompraDAO" %>
+<%@ page import="java.util.List" %>
 <%
   response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   response.setHeader("Pragma", "no-cache");
@@ -22,6 +24,8 @@
   String avatarActual = userSession.getAvatarUrl() != null && !userSession.getAvatarUrl().trim().isEmpty()
           ? userSession.getAvatarUrl().trim()
           : defaultAvatarUrl;
+  CompraDAO compraDAO = new CompraDAO();
+  List<String> peliculasCompradas = compraDAO.obtenerPeliculasCompradasPorUsuario(userSession.getIdUs());
 %>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
@@ -187,34 +191,29 @@
               <i class="bi bi-bag-check-fill me-2"></i>Compras recientes
             </h5>
 
-            <div class="list-group mb-4 shadow-sm">
-
-              <div class="list-group-item bg-transparent border-secondary border-opacity-25 text-white d-flex justify-content-between align-items-center p-3">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="bg-dark rounded p-2 border border-secondary border-opacity-50 shadow-sm">
-                    <i class="fas fa-film text-info fs-4"></i>
+            <div class="list-group mb-4 shadow-sm" id="recent-purchases-list">
+              <% if (peliculasCompradas != null && !peliculasCompradas.isEmpty()) { %>
+                <% for (String pelicula : peliculasCompradas) {
+                  String[] partes = pelicula.split(":", 2);
+                  String idPr = partes[0];
+                  String nombrePr = partes.length > 1 ? partes[1] : "PelÃ­cula";
+                %>
+                <div class="list-group-item bg-transparent border-secondary border-opacity-25 d-flex justify-content-between align-items-center p-3 recent-purchase-item" data-movie-id="<%= idPr %>">
+                  <div class="d-flex align-items-center gap-3">
+                    <img class="recent-purchase-poster" src="<%=request.getContextPath()%>/img/fallback-poster.svg" alt="<%= nombrePr %>">
+                    <div>
+                      <h6 class="mb-0 fw-semibold recent-purchase-title"><%= nombrePr %></h6>
+                      <small class="text-muted">Comprada en tu biblioteca</small>
+                    </div>
                   </div>
-                  <div>
-                    <h6 class="mb-0 fw-semibold">Avengers: Endgame</h6>
-                    <small class="text-muted">Fecha de compra: 18/05/2026</small>
-                  </div>
+                  <span class="badge bg-success rounded-pill px-3 py-2 border border-success border-opacity-50">Comprada</span>
                 </div>
-                <span class="badge bg-success rounded-pill px-3 py-2 border border-success border-opacity-50">$ 14.99</span>
-              </div>
-
-              <div class="list-group-item bg-transparent border-secondary border-opacity-25 text-white d-flex justify-content-between align-items-center p-3">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="bg-dark rounded p-2 border border-secondary border-opacity-50 shadow-sm">
-                    <i class="fas fa-film text-info fs-4"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0 fw-semibold">Spider-Man: No Way Home</h6>
-                    <small class="text-muted">Fecha de compra: 12/05/2026</small>
-                  </div>
+                <% } %>
+              <% } else { %>
+                <div class="list-group-item bg-transparent border-secondary border-opacity-25 p-3 text-muted" id="empty-recent-purchases">
+                  AÃºn no tienes compras recientes.
                 </div>
-                <span class="badge bg-success rounded-pill px-3 py-2 border border-success border-opacity-50">$ 12.50</span>
-              </div>
-
+              <% } %>
             </div>
             <div class="d-flex justify-content-end gap-3 mt-2">
               <button type="button" class="btn btn-outline-secondary rounded-pill px-4" onclick="location.href='my_content.jsp'">Cancelar</button>
@@ -232,6 +231,102 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/utils/avatar-picker.js"></script>
 <script src="<%=request.getContextPath()%>/js/script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const recentList = document.getElementById('recent-purchases-list');
+    if (!recentList || typeof buildApiUrl !== 'function') return;
+
+    const fallbackPoster = '<%=request.getContextPath()%>/img/fallback-poster.svg';
+    const storageKey = 'cinestore.purchases';
+
+    const readPurchases = () => {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || '[]');
+      } catch (error) {
+        return [];
+      }
+    };
+
+    async function fetchMovie(movieId) {
+      if (!movieId) return null;
+      try {
+        const response = await fetch(buildApiUrl('/movie/' + encodeURIComponent(movieId)));
+        if (!response.ok) return null;
+        const movie = await response.json();
+        return {
+          id: movie.id,
+          title: movie.title || movie.name || 'Pelicula',
+          posterPath: movie.poster_path || null
+        };
+      } catch (error) {
+        console.warn('No se pudo cargar la compra reciente:', error);
+        return null;
+      }
+    }
+
+    function posterSrc(movie) {
+      return movie && movie.posterPath ? IMG_URL + movie.posterPath : fallbackPoster;
+    }
+
+    function addOrUpdateItem(movie) {
+      if (!movie || !movie.id) return;
+      document.getElementById('empty-recent-purchases')?.remove();
+
+      const id = String(movie.id);
+      let item = recentList.querySelector('[data-movie-id="' + id + '"]');
+      if (!item) {
+        item = document.createElement('div');
+        item.className = 'list-group-item bg-transparent border-secondary border-opacity-25 d-flex justify-content-between align-items-center p-3 recent-purchase-item';
+        item.dataset.movieId = id;
+        item.innerHTML =
+          '<div class="d-flex align-items-center gap-3">' +
+            '<img class="recent-purchase-poster" src="' + fallbackPoster + '" alt="Pelicula">' +
+            '<div>' +
+              '<h6 class="mb-0 fw-semibold recent-purchase-title">Pelicula</h6>' +
+              '<small class="text-muted">Comprada en tu biblioteca</small>' +
+            '</div>' +
+          '</div>' +
+          '<span class="badge bg-success rounded-pill px-3 py-2 border border-success border-opacity-50">Comprada</span>';
+        recentList.prepend(item);
+      }
+
+      const image = item.querySelector('.recent-purchase-poster');
+      const title = item.querySelector('.recent-purchase-title');
+      if (image) {
+        image.src = posterSrc(movie);
+        image.alt = movie.title || 'Pelicula';
+        image.onerror = function () {
+          this.onerror = null;
+          this.src = fallbackPoster;
+        };
+      }
+      if (title) title.textContent = movie.title || 'Pelicula';
+    }
+
+    async function hydrateRecentPurchases() {
+      const localPurchases = readPurchases()
+        .filter(item => item && item.id)
+        .map(item => ({
+          id: Number(item.id),
+          title: item.title && item.title !== 'false' ? item.title : 'Pelicula',
+          posterPath: item.posterPath || null
+        }));
+
+      localPurchases.forEach(addOrUpdateItem);
+
+      const ids = Array.from(recentList.querySelectorAll('[data-movie-id]'))
+        .map(item => item.getAttribute('data-movie-id'))
+        .filter(Boolean);
+
+      await Promise.all(ids.map(async id => {
+        const movie = await fetchMovie(id);
+        if (movie) addOrUpdateItem(movie);
+      }));
+    }
+
+    hydrateRecentPurchases();
+  });
+</script>
 <script type="module" src="<%=request.getContextPath()%>/js/utils/profile.js"></script>
 </body>
 </html>

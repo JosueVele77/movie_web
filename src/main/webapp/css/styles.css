@@ -475,6 +475,38 @@ body {
     color: rgba(255, 255, 255, 0.5) !important;
 }
 
+[data-bs-theme="dark"] .auth-panel select,
+[data-bs-theme="dark"] .auth-panel select option {
+    background-color: #141414;
+    color: #f8f9fa;
+}
+
+.password-visibility-toggle {
+    cursor: pointer;
+    min-width: 44px;
+    justify-content: center;
+    color: var(--text-color);
+}
+
+.password-visibility-toggle:hover {
+    color: var(--accent-color);
+}
+
+.recent-purchase-poster {
+    width: 42px;
+    height: 58px;
+    flex: 0 0 auto;
+    border-radius: 6px;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+[data-bs-theme="light"] .recent-purchase-poster {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
 /* Estilo para los inputs: solo borde inferior como en el diseño */
 .custom-modal .form-control {
     border-top: none;

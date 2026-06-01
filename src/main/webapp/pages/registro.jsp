@@ -125,6 +125,9 @@
                         <div class="input-group border-bottom border-2">
                             <span class="input-group-text bg-transparent border-0 ps-0 py-2"><i class="bi bi-lock text-muted fs-5"></i></span>
                             <input type="password" class="form-control bg-transparent border-0 shadow-none py-2 fs-6 text-dark" id="signupPassword" name="clave" placeholder="Crea una contraseña" minlength="6" required>
+                            <button type="button" class="input-group-text bg-transparent border-0 py-2 password-visibility-toggle" data-password-toggle="signupPassword" aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>
                     </div>
 
